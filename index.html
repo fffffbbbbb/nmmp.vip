@@ -1478,6 +1478,7 @@ function clearTaskStates() {
             '购买资格包': ['购买资格包1.avif','购买资格包2.avif'], // 示例
             '汉化': ['汉化1.avif', '汉化2.avif'], 
             '42中队': ['42中队.avif'], 
+            '舰队': ['舰队.avif'], 
             '商家避雷表': ['商家避雷表.avif'], 
             '商品介绍': ['商品介绍1.avif','商品介绍2.avif','商品介绍3.avif','商品介绍4.avif','商品介绍5.avif','商品介绍6.avif','商品介绍7.avif','商品介绍8.avif','商品介绍9.avif','商品介绍10.avif'], 
         }
@@ -1594,7 +1595,7 @@ document.querySelectorAll('.task-box').forEach(task => {
                     registerBtn.href = 'https://robertsspaceindustries.com/en/enlist?referral=STAR-9KWF-Y7CS';
                     registerBtn.target = '_blank';
                     registerBtn.className = 'register-btn';
-                    registerBtn.textContent = '立即注册';
+                    registerBtn.textContent = '立即注册(跳转已自动填写邀请码的官网注册页面)';
                     registerBtn.addEventListener('click', (e) => {
                         e.stopPropagation();
                     });
@@ -1602,7 +1603,7 @@ document.querySelectorAll('.task-box').forEach(task => {
 
                     const warningText1 = document.createElement('div');
                     warningText1.className = 'warning-text';
-                    warningText1.textContent = '慎重选择163邮箱注册，易被撞库洗号';
+                    warningText1.textContent = '慎重选择163邮箱注册，易被撞库洗号,';
                     const warningText2 = document.createElement('div');
                     warningText2.className = 'warning-text';
                     warningText2.textContent = '初始邮箱权重大，勿用非本人邮箱注册';
@@ -1807,6 +1808,115 @@ document.querySelectorAll('.task-box').forEach(task => {
                     modalContentArea.appendChild(infoText1);
                     modalContentArea.appendChild(infoText2);
                     modalContentArea.appendChild(infoText3);
+
+                } else if (taskId === '村规') {
+
+// ====== 【创建/获取 info-text 容器（支持 HTML）】======
+let infoText1 = modalActions.querySelector('#info-text-1');
+let infoText2 = modalActions.querySelector('#info-text-2');
+let infoText3 = modalActions.querySelector('#info-text-3');
+
+if (!infoText1) {
+    infoText1 = document.createElement('div');
+    infoText1.id = 'info-text-1';
+    infoText1.className = 'info-text'; // 使用 info-text 样式
+    modalActions.appendChild(infoText1);
+}
+if (!infoText2) {
+    infoText2 = document.createElement('div');
+    infoText2.id = 'info-text-2';
+    infoText2.className = 'info-text';
+    modalActions.appendChild(infoText2);
+}
+if (!infoText3) {
+    infoText3 = document.createElement('div');
+    infoText3.id = 'info-text-3';
+    infoText3.className = 'info-text';
+    modalActions.appendChild(infoText3);
+}
+
+// ====== 【定义每一步对应的富文本提示（支持 HTML）】======
+const stepInfos = [
+    {
+        html1: '<span class="highlight-rainbow">禁止在游戏内刷屏，发布政治/种族歧视/外挂/现金交易等相关信息，禁止堵星门或他人机库，以上行为可能会被他人报送客服从而对账号实施封禁</span>',
+        html2: '<span class="highlight-rainbow">禁止发布或买卖AUEC相关内容，可能会被他人报送客服从而对账号实施封禁</span>',
+        html3: '<span class="highlight-rainbow">由于目前官方新手引导缺失，一般情况下，新手可以从他所填的邀请码所属人处寻求游戏游玩教程（类似于该网站，其他形式还有:图文/系列视频/手把手教等，但此项村规约束力较弱，并非强制）</span>',
+    },
+];
+
+// ====== 【更新 info 文本（使用 innerHTML）】======
+function updateInfoText(index) {
+    if (stepInfos[index]) {
+        infoText1.innerHTML = stepInfos[index].html1;
+        infoText2.innerHTML = stepInfos[index].html2;
+        infoText3.innerHTML = stepInfos[index].html3;
+    }
+}
+
+// 显示第一条信息
+updateInfoText(0);
+
+} else if (taskId === '舰队') {
+    // ====== 【创建/获取 info-text 容器（支持 HTML）】======
+    let infoText1 = modalActions.querySelector('#info-text-1');
+    let infoText2 = modalActions.querySelector('#info-text-2');
+    let infoText3 = modalActions.querySelector('#info-text-3');
+
+    if (!infoText1) {
+        infoText1 = document.createElement('div');
+        infoText1.id = 'info-text-1';
+        infoText1.className = 'info-text'; // 使用 info-text 样式
+        modalActions.appendChild(infoText1);
+    }
+    if (!infoText2) {
+        infoText2 = document.createElement('div');
+        infoText2.id = 'info-text-2';
+        infoText2.className = 'info-text';
+        modalActions.appendChild(infoText2);
+    }
+    if (!infoText3) {
+        infoText3 = document.createElement('div');
+        infoText3.id = 'info-text-3';
+        infoText3.className = 'info-text';
+        modalActions.appendChild(infoText3);
+    }
+    
+    // ====== 【定义唯一的提示文本（支持 HTML）】======
+    const infoHtml = {
+        html1: '<span class="highlight-rainbow">在登录状态下的官网<a href="https://robertsspaceindustries.com/en/community/orgs/listing?sort=size_desc&search=&language[]=zh&pagesize=12&page=1&" target="_blank" class="link">舰队</a>列表(点击直达)中选择中意的舰队加入</span>',
+        html2: '<span class="highlight-rainbow">亦可以在社区平台寻找舰队相关的讨论和推荐（如贴吧/频道等）</span>',
+        html3: '<span class="highlight-rainbow">同时可以在各视频网站搜索各个舰队宣传视频来了解不同舰队的特点和氛围，选择适合自己的舰队加入</span>',
+    };
+
+    // ====== 【更新 info 文本（使用 innerHTML）】======
+    infoText1.innerHTML = infoHtml.html1;
+    infoText2.innerHTML = infoHtml.html2;
+    infoText3.innerHTML = infoHtml.html3;
+
+    // ====== 【为单张图片添加点击事件以进入全屏】======
+    const carouselId = `carousel-${taskId}`;
+    const carousel = document.getElementById(carouselId);
+    if (carousel) {
+        // 选择第一个（也是唯一一个）幻灯片
+        const firstSlide = carousel.querySelector('.carousel-slide');
+        if (firstSlide) {
+            // 为图片本身和整个slide区域添加点击事件
+            firstSlide.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // 这里假设 openFullscreenViewer 函数是您已有的，它需要知道任务ID和当前是第几张图
+                // 因为现在只有一张图，所以索引传入 0
+                openFullscreenViewer(taskId, 0);
+            });
+            
+            // 如果点击到slide的背景（不是图片本身），也触发全屏
+            carousel.addEventListener('click', (e) => {
+                if (e.target === carousel) {
+                    openFullscreenViewer(taskId, 0);
+                }
+            });
+        }
+    }
+
 
 
 
