@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+    xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+       http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
+>
+
+<url>
+ <loc>https://nmmp.vip/cdn-cgi/content?id=e9QIywdnfYqLOEqlrJxkgZP1dq.wB7hEDkXWTonfYEs-1775486769.7738893-1.0.1.1-W2VG9EAjM3whs_89u.yCz0A5VBOZXisnNmRF0EGkngQ</loc>
+ <priority>0.3</priority>
+ <lastmod>2026-04-06</lastmod>
+ <changefreq>daily</changefreq>
+</url>
+
+<url>
+ <loc>http://nmmp.vip</loc>
+ <priority>0.3</priority>
+ <lastmod>2026-04-06</lastmod>
+ <changefreq>daily</changefreq>
+</url>
+
+</urlset>

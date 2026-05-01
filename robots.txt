@@ -1,0 +1,4 @@
+# robots.txt generated at https://www.sojson.com/robots/
+Disallow:https://nmmp.vip/sitemap.xml
+User-agent: *
+Disallow:
