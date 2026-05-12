@@ -2243,7 +2243,7 @@ async function updateFundingStats() {
             try {
                 const b = JSON.stringify({ chart: 'day', fans: true, funds: true, alpha_slots: true, fleet: true });
                 const r = await fetchWithTimeout('/api/crowdfund-stats', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: b }, 15000);
-                if (r.ok) { const j = await r.json(); if (j?.data) { await display(j.data.funds, j.data.fans); ok = true; } }
+                if (r.ok) { const j = await r.json(); if (j?.data) { await display(j.data.funds / 100, j.data.fans); ok = true; } }
             } catch (_) {}
         }
 
@@ -2253,7 +2253,7 @@ async function updateFundingStats() {
                 const b = JSON.stringify({ chart: 'day', fans: true, funds: true, alpha_slots: true, fleet: true });
                 const url = 'https://corsproxy.io/?' + encodeURIComponent('https://robertsspaceindustries.com/api/stats/getCrowdfundStats');
                 const r = await fetchWithTimeout(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: b }, 15000);
-                if (r.ok) { const j = await r.json(); if (j?.data) { await display(j.data.funds, j.data.fans); ok = true; } }
+                if (r.ok) { const j = await r.json(); if (j?.data) { await display(j.data.funds / 100, j.data.fans); ok = true; } }
             } catch (_) {}
         }
 
