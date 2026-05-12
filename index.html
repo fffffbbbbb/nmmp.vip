@@ -2220,112 +2220,68 @@ async function updateFundingStats() {
     const backersCountEl = document.getElementById('backers-count');
     const updateTimeEl = document.getElementById('funding-update-time');
 
-    // 频率限制检查
     if (!checkRateLimit()) {
-        if (updateTimeEl) {
-            updateTimeEl.textContent = '频率限制中…稍后自动刷新';
-            updateTimeEl.style.color = '#ff9800';
-        }
-        console.warn('⏸ 募集资金更新被频率限制跳过');
+        if (updateTimeEl) { updateTimeEl.textContent = '频率限制中…'; updateTimeEl.style.color = '#ff9800'; }
         return;
     }
 
-    // 使用 Star Citizen Wiki API 获取实时统计数据
-    const statsApiUrl = 'https://api.star-citizen.wiki/api/stats';
-    
+    async function display(funds, backers) {
+        if (fundingAmountEl) { fundingAmountEl.textContent = funds ? formatFundingAmount(funds) : '获取失败'; fundingAmountEl.style.color = funds ? '#4CAF50' : '#f44336'; }
+        if (backersCountEl) { backersCountEl.textContent = backers ? formatBackersCount(backers) : '获取失败'; backersCountEl.style.color = backers ? '#4CAF50' : '#f44336'; }
+        if (updateTimeEl) {
+            const d = new Date();
+            updateTimeEl.textContent = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0') + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0') + ':' + String(d.getSeconds()).padStart(2,'0');
+            updateTimeEl.style.color = '';
+        }
+    }
+
     try {
-        console.log('正在获取统计数据...');
-        const response = await fetchWithTimeout(statsApiUrl, {}, 10000);
+        let ok = false;
 
-        if (!response.ok) {
-            throw new Error(`API 请求失败: ${response.status}`);
+        // 1) 同源代理（localhost / Cloudflare）
+        if (location.protocol !== 'file:') {
+            try {
+                const b = JSON.stringify({ chart: 'day', fans: true, funds: true, alpha_slots: true, fleet: true });
+                const r = await fetchWithTimeout('/api/crowdfund-stats', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: b }, 15000);
+                if (r.ok) { const j = await r.json(); if (j?.data) { await display(j.data.funds, j.data.fans); ok = true; } }
+            } catch (_) {}
         }
 
-        const json = await response.json();
-        
-        // 提取最新数据（通常在 data 数组的第一项）
-        if (json && json.data && json.data.length > 0) {
-            const latestStats = json.data[0];
-            const fundingAmount = latestStats.funds;
-            const backersCount = latestStats.fans || latestStats.fleet; // fans 和 fleet 通常是一样的
-
-            console.log('获取到最新数据:', latestStats);
-
-            // 更新 UI - 募集资金
-            if (fundingAmountEl) {
-                if (fundingAmount) {
-                    fundingAmountEl.textContent = formatFundingAmount(fundingAmount);
-                    fundingAmountEl.style.color = '#4CAF50';
-                } else {
-                    fundingAmountEl.textContent = '获取失败';
-                    fundingAmountEl.style.color = '#f44336';
-                }
-            }
-
-            // 更新 UI - 支持者人数
-            if (backersCountEl) {
-                if (backersCount) {
-                    backersCountEl.textContent = formatBackersCount(backersCount);
-                    backersCountEl.style.color = '#4CAF50';
-                } else {
-                    backersCountEl.textContent = '获取失败';
-                    backersCountEl.style.color = '#f44336';
-                }
-            }
-        } else {
-            throw new Error('API 返回的数据格式不正确');
+        // 2) corsproxy.io → RSI
+        if (!ok) {
+            try {
+                const b = JSON.stringify({ chart: 'day', fans: true, funds: true, alpha_slots: true, fleet: true });
+                const url = 'https://corsproxy.io/?' + encodeURIComponent('https://robertsspaceindustries.com/api/stats/getCrowdfundStats');
+                const r = await fetchWithTimeout(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: b }, 15000);
+                if (r.ok) { const j = await r.json(); if (j?.data) { await display(j.data.funds, j.data.fans); ok = true; } }
+            } catch (_) {}
         }
 
-        // 更新时间
-        if (updateTimeEl) {
-            const now = new Date();
-            const timeStr = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-            updateTimeEl.textContent = timeStr;
+        // 3) Wiki API 备用
+        if (!ok) {
+            const r = await fetchWithTimeout('https://api.star-citizen.wiki/api/stats', {}, 10000);
+            if (r.ok) { const j = await r.json(); if (j?.data?.[0]) { await display(j.data[0].funds, j.data[0].fans || j.data[0].fleet); ok = true; } }
         }
 
-        console.log('✓ 募集资金和玩家人数更新成功');
-
-    } catch (error) {
-        console.error('✗ 获取募集资金数据失败:', error);
-
-        if (fundingAmountEl) {
-            fundingAmountEl.textContent = '获取失败';
-            fundingAmountEl.style.color = '#f44336';
-        }
-
-        if (backersCountEl) {
-            backersCountEl.textContent = '获取失败';
-            backersCountEl.style.color = '#f44336';
-        }
-
-        if (updateTimeEl) {
-            const now = new Date();
-            updateTimeEl.textContent = `错误 ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-        }
+        if (!ok) throw new Error();
+    } catch (e) {
+        console.error('统计数据获取失败:', e);
+        if (fundingAmountEl && (!fundingAmountEl.textContent || fundingAmountEl.textContent === '加载中...')) { fundingAmountEl.textContent = '获取失败'; fundingAmountEl.style.color = '#f44336'; }
+        if (backersCountEl && (!backersCountEl.textContent || backersCountEl.textContent === '加载中...')) { backersCountEl.textContent = '获取失败'; backersCountEl.style.color = '#f44336'; }
+        if (updateTimeEl) { const d = new Date(); updateTimeEl.textContent = '失败 ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); updateTimeEl.style.color = '#f44336'; }
     }
 }
 
-// 页面加载时更新募集资金数据，并使用随机间隔刷新（10-12分钟）
 function scheduleFundingUpdate() {
-    // 随机间隔 10-12 分钟 (600000-720000 毫秒)
     const randomDelay = Math.floor(Math.random() * 120000) + 600000;
-    console.log(`下次募集资金更新将在 ${randomDelay / 1000 / 60} 分钟后`);
-    setTimeout(() => {
-        updateFundingStats();
-        scheduleFundingUpdate();
-    }, randomDelay);
+    console.log('下次募集资金更新将在 ' + (randomDelay / 1000 / 60) + ' 分钟后');
+    setTimeout(() => { updateFundingStats(); scheduleFundingUpdate(); }, randomDelay);
 }
 
-// 募集资金折叠功能
 function initFundingStatsToggle() {
-    const fundingStatsToggle = document.getElementById('funding-stats-toggle');
-    const fundingStats = document.getElementById('funding-stats');
-
-    if (fundingStatsToggle && fundingStats) {
-        fundingStatsToggle.addEventListener('click', () => {
-            fundingStats.classList.toggle('collapsed');
-        });
-    }
+    const toggle = document.getElementById('funding-stats-toggle');
+    const stats = document.getElementById('funding-stats');
+    if (toggle && stats) toggle.addEventListener('click', () => stats.classList.toggle('collapsed'));
 }
 
 // 在DOMContentLoaded事件中初始化
