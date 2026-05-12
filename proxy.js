@@ -207,6 +207,22 @@ http.createServer((req, res) => {
     return;
   }
 
+  // ---- 汇率页面代理（GET 中国银行 HTML，前端解析）----
+  if (url.pathname === '/api/boc-rates') {
+    https.get('https://www.boc.cn/sourcedb/whpj/', (bocRes) => {
+      let html = '';
+      bocRes.on('data', chunk => html += chunk);
+      bocRes.on('end', () => {
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Access-Control-Allow-Origin': '*' });
+        res.end(html);
+      });
+    }).on('error', (e) => {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    });
+    return;
+  }
+
   // ---- 募集资金统计数据代理（官方 RSI API）----
   if (url.pathname === '/api/crowdfund-stats') {
     const body = JSON.stringify({
