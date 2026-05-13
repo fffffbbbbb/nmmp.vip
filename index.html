@@ -1154,6 +1154,34 @@
         font-weight: bold;
     }
 
+    /* --- 发票下载器样式 --- */
+    .invoice-dl { text-align: center; padding: 20px 0; }
+    .invoice-icon { font-size: 48px; margin-bottom: 10px; }
+    .invoice-title { color: #FFC107; font-size: 18px; font-weight: bold; margin-bottom: 12px; }
+    .invoice-desc { color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 20px; line-height: 1.6; }
+    .invoice-desc strong { color: #FFC107; }
+    .invoice-btn {
+        display: inline-block;
+        background: linear-gradient(135deg, #4CAF50, #45a049);
+        color: #fff;
+        font-size: 18px;
+        font-weight: bold;
+        padding: 14px 40px;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    }
+    .invoice-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5);
+    }
+    .invoice-note { color: rgba(255,255,255,0.3); font-size: 12px; margin-top: 14px; }
+    @media (max-width: 767px) {
+        .invoice-btn { font-size: 15px; padding: 12px 30px; }
+        .invoice-title { font-size: 15px; }
+    }
+
     /* --- 汇率结果样式 --- */
     .exchange-result {
         font-family: Arial, sans-serif;
@@ -1963,6 +1991,20 @@
                     <div class="toolbox-tool-info">
                         <div class="toolbox-tool-name">汇率查询</div>
                         <div class="toolbox-tool-desc">查询中国银行外汇牌价（美元/欧元/日元/港币等）</div>
+                    </div>
+                    <div class="toolbox-tool-arrow">&#8250;</div>
+                </div>
+
+                <div class="toolbox-tool-item" data-tool="invoice">
+                    <div class="toolbox-tool-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+                            <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+                        </svg>
+                    </div>
+                    <div class="toolbox-tool-info">
+                        <div class="toolbox-tool-name">账单发票下载器</div>
+                        <div class="toolbox-tool-desc">下载星际公民官网账单发票 PDF</div>
                     </div>
                     <div class="toolbox-tool-arrow">&#8250;</div>
                 </div>
@@ -5451,8 +5493,8 @@ function closeModal() {
             item.addEventListener('click', () => {
                 currentTool = item.dataset.tool;
                 toolboxRunArea.classList.add('show');
-                toolboxRunLabel.textContent = (currentTool === 'wbccu') ? 'WBCCU 价格查询 — 点击运行获取最新数据' : (currentTool === 'exchange') ? '汇率查询 — 点击运行获取中国银行最新外汇牌价' : '';
-                toolboxRunBtn.textContent = (currentTool === 'wbccu') ? '查询最新WB' : (currentTool === 'exchange') ? '查询汇率' : '运行';
+                toolboxRunLabel.textContent = (currentTool === 'wbccu') ? 'WBCCU 价格查询 — 点击运行获取最新数据' : (currentTool === 'exchange') ? '汇率查询 — 点击运行获取中国银行最新外汇牌价' : (currentTool === 'invoice') ? '账单发票下载器' : '';
+                toolboxRunBtn.textContent = (currentTool === 'wbccu') ? '查询最新WB' : (currentTool === 'exchange') ? '查询汇率' : (currentTool === 'invoice') ? '下载' : '运行';
                 toolboxResult.textContent = '';
                 toolboxResult.className = '';
             });
@@ -5619,6 +5661,9 @@ function closeModal() {
                     toolboxRunBtn.disabled = false;
                     toolboxRunBtn.textContent = '运行';
                 }
+            } else if (currentTool === 'invoice') {
+                toolboxResult.innerHTML = '<div class="invoice-dl"><div class="invoice-icon">&#128196;</div><div class="invoice-title">星际公民账单发票下载器</div><div class="invoice-desc">点击下方按钮下载发票 PDF，解压密码: <strong>Tkz02</strong></div><a href="https://wwaor.lanzout.com/iGYZt3pdsira" target="_blank" class="invoice-btn" rel="noopener">&#11015; 下载发票</a><div class="invoice-note">文件来自蓝奏云，密码已填在页面中</div></div>';
+                toolboxResult.className = '';
             }
         });
 
