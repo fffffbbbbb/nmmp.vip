@@ -3082,6 +3082,7 @@ function clearTaskStates() {
             '商家避雷表': ['商家避雷表.avif'],
             '商品介绍': ['商品介绍1.avif','商品介绍2.avif','商品介绍3.avif','商品介绍4.avif','商品介绍5.avif','商品介绍6.avif','商品介绍7.avif','商品介绍8.avif','商品介绍9.avif','商品介绍10.avif'],
             '购物车入库': ['购物车入库1.avif','购物车入库2.avif','购物车入库3.avif','购物车入库4.avif'],
+            '个人主页': ['个人主页.avif'],
 
             '官网退款': ['官网退款.avif'],
             '礼物领取': ['礼物领取.avif'],
@@ -3619,43 +3620,46 @@ document.querySelectorAll('.task-box').forEach(task => {
     initOfficialSiteFeaturesCarousel(taskId);
 
 
-                } else if (taskId === '官网个人') {
-                    modalContentArea.insertAdjacentHTML('afterbegin', '<p>官网个人页面功能：</p>');
-                    
-                    const infoText1 = document.createElement('div');
-                    infoText1.className = 'info-text';
-                    infoText1.textContent = '管理个人资料数据';
-                    const infoText2 = document.createElement('div');
-                    infoText2.className = 'info-text';
-                    infoText2.textContent = '管理个人机库所拥有的飞船和物品';
-                    const infoText3 = document.createElement('div');
-                    infoText3.className = 'info-text';
-                    infoText3.textContent = '管理账号设置、查看购买历史、管理支付方式';
-                    
-                    modalContentArea.appendChild(infoText1);
-                    modalContentArea.appendChild(infoText2);
-                    modalContentArea.appendChild(infoText3);
+} else if (taskId === '个人主页') {
+    modalContentArea.insertAdjacentHTML('afterbegin', '<p>个人主页：</p>');
 
-                } else if (taskId === '个人主页') {
-                    modalContentArea.insertAdjacentHTML('afterbegin', '<p>个人主页：</p>');
+    const infoText1 = document.createElement('div');
+    infoText1.className = 'info-text';
+    infoText1.innerHTML = '【基础信息】<span class="highlight-blue">头像</span>、<span class="highlight-blue">所属主要舰队的图标</span>、<span class="highlight-blue">处在所属主要舰队的职位图标</span>、游戏名<span class="highlight-purple">（咕咕嘎嘎）</span>、<span class="highlight-purple">公民档案</span>、<span class="highlight-purple">社区handle（@臭企鹅）</span>——代表你的唯一标识符，<span class="highlight-red">注册时默认无，有一次免费设置机会，后续改一次需5美元，且不能重名</span>';
 
-                    const infoText1 = document.createElement('div');
-                    infoText1.className = 'info-text';
-                    infoText1.textContent = '展示账号基本信息：头像、背景、昵称、头衔、公民编号等';
-                    const infoText2 = document.createElement('div');
-                    infoText2.className = 'info-text';
-                    infoText2.textContent = '查看游戏进度和统计数据：游戏时长、飞行距离、任务完成数等';
-                    const infoText3 = document.createElement('div');
-                    infoText3.className = 'info-text';
-                    infoText3.textContent = '管理个人资料展示：成就/徽章、个人简介等';
-                    const infoText4 = document.createElement('div');
-                    infoText4.className = 'info-text';
-                    infoText4.innerHTML = '进入官网 <a href="https://robertsspaceindustries.com/en/account" target="_blank" class="link">个人主页</a> 查看';
+    const infoText2 = document.createElement('div');
+    infoText2.className = 'info-text';
+    infoText2.innerHTML = '【三种货币】<span class="highlight-blue">商店信用（Store Credit）</span>：<span class="highlight-purple">1,145.14美元</span>，用于官网商店消费；<span class="highlight-blue">UEC</span>：<span class="highlight-purple">999 UEC</span>，游戏正式版货币；<span class="highlight-rainbow">推荐点（REC）</span>：<span class="highlight-rainbow">88,848 REC</span>，竞技场指挥官（Arena Commander）货币';
 
-                    modalContentArea.appendChild(infoText1);
-                    modalContentArea.appendChild(infoText2);
-                    modalContentArea.appendChild(infoText3);
-                    modalContentArea.appendChild(infoText4);
+    const infoText3 = document.createElement('div');
+    infoText3.className = 'info-text';
+    infoText3.innerHTML = '【账户管理】<span class="highlight-blue">我的公民档案</span> / <span class="highlight-blue">账户管理</span> —— <span class="highlight-purple">2023年2月26日</span>（注册日期），可<span class="highlight-purple">管理个人资料、检查账单详情并访问您的机库</span>；<span class="highlight-blue">账户仪表盘</span> / <span class="highlight-blue">账户设置&amp;查看账单</span> / <span class="highlight-blue">我的机库</span>（个人官网机库）';
+
+    const infoText4 = document.createElement('div');
+    infoText4.className = 'info-text';
+    infoText4.innerHTML = '【组织与舰队】<span class="highlight-blue">组织</span> / <span class="highlight-blue">所属舰队页面</span> —— 查看您所在舰队的具体信息';
+
+    const infoText5 = document.createElement('div');
+    infoText5.className = 'info-text';
+    infoText5.innerHTML = '【奖励系统】<span class="highlight-blue">你的奖励</span> / <span class="highlight-red">兑换代码</span> —— 使用兑换码换取奖励；<span class="highlight-purple">奖励总数：6</span>，包括：<span class="highlight-purple">新兵</span>、<span class="highlight-purple">市民</span>、<span class="highlight-purple">招募</span>、<span class="highlight-rainbow">阿奇博尔德·特斯银雕像</span>、<span class="highlight-purple">推荐一位朋友</span>、<span class="highlight-purple">STAR-SM</span>';
+
+    const infoText6 = document.createElement('div');
+    infoText6.className = 'info-text';
+    infoText6.innerHTML = '【推荐与邀请】<span class="highlight-blue">推荐项目</span> —— 查看邀请奖励的页面；<span class="highlight-rainbow">个人邀请码：STAR-SM</span>（可复制链接分享）；<span class="highlight-red">登出</span>按钮';
+
+    const infoText7 = document.createElement('div');
+    infoText7.className = 'info-text';
+    infoText7.innerHTML = '进入官网 <a href="https://robertsspaceindustries.com/en/account" target="_blank" class="link">个人主页</a> 查看完整信息';
+
+    modalContentArea.appendChild(infoText1);
+    modalContentArea.appendChild(infoText2);
+    modalContentArea.appendChild(infoText3);
+    modalContentArea.appendChild(infoText4);
+    modalContentArea.appendChild(infoText5);
+    modalContentArea.appendChild(infoText6);
+    modalContentArea.appendChild(infoText7);
+    
+
 
                 } else if (taskId === '个人账号') {
                     modalContentArea.insertAdjacentHTML('afterbegin', '<p>个人账号管理：</p>');
