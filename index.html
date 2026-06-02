@@ -2183,19 +2183,19 @@ async function updateServerStatus() {
     } catch (error) {
         console.error('✗ 获取服务器状态失败:', error);
         
-        // 如果获取失败，默认显示绿色
-        const indicators = ['status-platform', 'status-pu', 'status-ac'];
-        indicators.forEach(id => {
+        // 获取失败，显示灰色（未知状态）而不是虚假的绿色
+        ['status-platform', 'status-pu', 'status-ac'].forEach(id => {
             const indicator = document.getElementById(id);
             if (indicator) {
-                indicator.style.backgroundColor = '#4CAF50';
-                indicator.style.boxShadow = '0 0 6px #4CAF50';
+                indicator.style.backgroundColor = '#666';
+                indicator.style.boxShadow = '0 0 6px #666';
             }
         });
-        
+
         if (updateTimeEl) {
             const now = new Date();
-            updateTimeEl.textContent = `更新失败 ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            updateTimeEl.textContent = `获取失败 ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            updateTimeEl.style.color = '#f44336';
         }
     }
 }
