@@ -2166,6 +2166,11 @@ async function updateServerStatus() {
                         // 红色
                         indicator.style.backgroundColor = '#f44336';
                         indicator.style.boxShadow = '0 0 6px #f44336';
+                    } else {
+                        // 兜底：任何未识别的状态（如 maintenance / under_maintenance / investigating 等）
+                        // 不显示虚假的绿色，改显示黄色警告
+                        indicator.style.backgroundColor = '#ffc107';
+                        indicator.style.boxShadow = '0 0 6px #ffc107';
                     }
                 }
             }
