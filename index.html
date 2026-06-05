@@ -5774,21 +5774,21 @@ function closeModal() {
                 toolboxResult.textContent = '正在获取汇率数据…';
                 toolboxResult.className = 'loading';
 
-                                try {
+                try {
                     if (location.protocol === 'file:') throw new Error('请部署到 Cloudflare 后使用');
                     const resp = await fetchWithTimeout('/api/boc-rates', {}, 20000);
                     if (!resp.ok) throw new Error('无法获取汇率数据');
                     const rawHtml = await resp.text();
                     let rates = {};
                     for (const ccy of exchangeCurrencies) {
-                        const sr = new RegExp(`<td>${ccy}</td>\s*<td>([\d.]+)</td>\s*<td>[\d.]+</td>\s*<td>([\d.]+)</td>`, 'i');
-                        const br = new RegExp(`<td>${ccy}</td>\s*<td>([\d.]+)</td>\s*<td>[\d.]+</td>\s*<td>[\d.]+</td>\s*<td>([\d.]+)</td>`, 'i');
+                        const sr = new RegExp(`<td>${ccy}</td>\\s*<td>([\\d.]+)</td>\\s*<td>[\\d.]+</td>\\s*<td>([\\d.]+)</td>`, 'i');
+                        const br = new RegExp(`<td>${ccy}</td>\\s*<td>([\\d.]+)</td>\\s*<td>[\\d.]+</td>\\s*<td>[\\d.]+</td>\\s*<td>([\\d.]+)</td>`, 'i');
                         const sm = rawHtml.match(sr);
                         const bm = rawHtml.match(br);
                         if (sm && bm) rates[ccy] = { buy: parseFloat(bm[1]), sell: parseFloat(sm[2]) };
                     }
                     showExchangeRates(rates);
-                }} catch (e) {
+                } catch (e) {
                     toolboxResult.innerHTML = '<span class="error-msg">[错误] ' + e.message + '</span>';
                     toolboxResult.className = 'error';
                     console.error(e);
