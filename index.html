@@ -2443,8 +2443,7 @@ async function updateFestivalCountdown() {
         const t = all[0];
         el.textContent = "★ 节日倒计时: " + t.n + ": " + (t.d <= 0 ? "今日" : t.d + "天");
         let tip = "";
-        for (const item of all) { const s = item.d <= 0 ? "今日" : item.d + "天"; tip += item.n + (item.p ? "*" : "") + ": " + s + "
-"; }
+        for (const item of all) { const s = item.d <= 0 ? "今日" : item.d + "天"; tip += item.n + (item.p ? "*" : "") + ": " + s + "\n"; }
         const panel = document.getElementById("festival-status");
         if (panel) panel.setAttribute("data-tip", tip.trim());
     } catch(e) { console.error(e); }
