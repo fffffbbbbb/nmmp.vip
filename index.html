@@ -2443,7 +2443,7 @@ async function updateFestivalCountdown() {
                 try { const r = await fetchWithTimeout('/api/festivals', {}, 15000); if (r.ok) raw = await r.json(); } catch(_) {}
             }
             if (!raw) {
-                try { const r = await fetchWithTimeout('https://eahi.org/api/eventsTracker/', {}, 15000); if (r.ok) raw = await r.json(); } catch(_) {}
+                try { const r = await fetchWithTimeout('https://eahi.org/api/eventsTracker/zh/', {}, 15000); if (r.ok) raw = await r.json(); } catch(_) {}
             }
             if (raw?.data?.length) {
                 data = raw.data;
@@ -2453,7 +2453,7 @@ async function updateFestivalCountdown() {
         if (!data?.length) { if (mainEl.textContent === '加载中...') mainEl.textContent = '暂无数据'; return; }
 
         const now = new Date();
-        let events = data.map(e => ({ name: e.en, ref: e.ref, start: new Date(e.start), end: new Date(e.end) }));
+        let events = data.map(e => ({ name: e.zh || e.en, ref: e.ref_zh || e.ref, start: new Date(e.start), end: new Date(e.end) }));
 
         let future = events.filter(e => e.end > now).sort((a, b) => a.start - b.start);
         let past = events.filter(e => e.end <= now).sort((a, b) => b.start - a.start);
@@ -6023,7 +6023,7 @@ function closeModal() {
     </script>
     
     <!-- --- 节日倒计时 --- -->
-    <div id="festival-status">
+    <div id="festival-status" class="collapsed">
         <span class="festival-title" id="festival-toggle">
             <span class="collapse-toggle">&#9660;</span> &#127775; <span id="festival-main">加载中...</span>
         </span>

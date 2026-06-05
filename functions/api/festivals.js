@@ -11,7 +11,7 @@ export async function onRequest(context) {
   }
 
   try {
-    const resp = await fetch('https://eahi.org/api/eventsTracker/', {
+    const resp = await fetch('https://eahi.org/api/eventsTracker/zh/', {
       headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' },
     });
 
