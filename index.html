@@ -462,7 +462,7 @@
         }
         /* 自定义黑色底绿字 tooltip */
         #server-status .status-item[data-tooltip]:hover::after,
-        #festival-status .f-item[data-tip]:hover::after {
+        #server-status .status-item[data-tooltip]:hover::after {
             content: attr(data-tooltip);
             position: absolute;
             bottom: -8px;
@@ -2415,99 +2415,41 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- 募集资金和玩家人数更新结束 ---
 
 // --- 节日倒计时 ---
-const festivalLimit = { key: 'sc_festival_ts', max: 10, windowMs: 3600000 };
-function checkFestivalLimit() {
-    const n = Date.now(); let rec;
-    try { rec = JSON.parse(localStorage.getItem(festivalLimit.key) || 'null'); } catch(e) { rec = null; }
-    if (!rec || !rec.w || (n - rec.w > festivalLimit.windowMs)) rec = { w: n, c: 0 };
-    if (rec.c >= festivalLimit.max) return false;
-    rec.c++; localStorage.setItem(festivalLimit.key, JSON.stringify(rec));
-    return true;
-}
-
-function nextOccurrence(month, day) {
-    const now = new Date();
-    let d = new Date(now.getFullYear(), month - 1, day);
-    if (d <= now) d = new Date(now.getFullYear() + 1, month - 1, day);
-    return d;
-}
-
 async function updateFestivalCountdown() {
-    const el = document.getElementById('festival-main');
-    const panel = document.getElementById('festival-status');
-    if (!el) return;
-
-    let cached = null; try { const c = localStorage.getItem('sc_festival_cache'); if (c) { const p = JSON.parse(c); if (p?.d && Array.isArray(p.d) && Date.now() - p.t < 3600000) cached = p.d; else localStorage.removeItem('sc_festival_cache'); } } catch(e) { localStorage.removeItem('sc_festival_cache'); }
-
     try {
-        let data = cached;
-        if (checkFestivalLimit()) {
-            let raw = null;
-            if (location.protocol !== 'file:') {
-                try { const r = await fetchWithTimeout('/api/festivals', {}, 15000); if (r.ok) raw = await r.json(); } catch(_) {}
-            }
-            if (!raw) {
-                try { const r = await fetchWithTimeout('https://eahi.org/api/eventsTracker/zh/', {}, 15000); if (r.ok) raw = await r.json(); } catch(_) {}
-            }
-            if (raw?.data?.length) {
-                data = raw.data;
-                try { localStorage.setItem('sc_festival_cache', JSON.stringify({ t: Date.now(), d: data })); } catch(e) {}
-            }
-        }
-        if (!data?.length) { if (el.textContent.includes('加载')) el.textContent = '暂无数据'; return; }
-
+        const el = document.getElementById("festival-main");
+        if (!el) return;
+        let data = null;
+        try { const r = await fetch("https://eahi.org/api/eventsTracker/zh/"); if (r.ok) data = await r.json(); } catch(e) {}
+        if (!data?.data?.length) { el.textContent = "暂无数据"; return; }
         const now = new Date();
-        const events = data.map(e => ({
-            name: e.zh || e.en,
-            start: new Date(e.start),
-            end: new Date(e.end),
-            md: { month: new Date(e.start).getMonth() + 1, day: new Date(e.start).getDate() }
-        }));
-
-        const future = events.filter(e => e.end > now).sort((a, b) => a.start - b.start);
-        const past = events.filter(e => e.end <= now);
-        let allItems = [];
-
-        for (const ev of future) {
-            const d = Math.ceil((ev.start - now) / (1000 * 60 * 60 * 24));
-            allItems.push({ name: ev.name, days: d, predicted: false });
-        }
-
+        let items = data.data.map(e => ({ name: e.zh || e.en, start: new Date(e.start), end: new Date(e.end), md: { m: new Date(e.start).getMonth() + 1, d: new Date(e.start).getDate() } }));
+        let future = items.filter(e => e.end > now).sort((a, b) => a.start - b.start);
+        let past = items.filter(e => e.end <= now);
+        let all = [];
+        for (const ev of future) { const d = Math.ceil((ev.start - now) / 86400000); all.push({ n: ev.name, d }); }
         const seen = new Set();
         for (const ev of past) {
-            if (seen.has(ev.name)) continue;
-            seen.add(ev.name);
-            const nd = nextOccurrence(ev.md.month, ev.md.day);
-            const d = Math.ceil((nd - now) / (1000 * 60 * 60 * 24));
-            allItems.push({ name: ev.name, days: d, predicted: true });
+            if (seen.has(ev.name)) continue; seen.add(ev.name);
+            let nd = new Date(now.getFullYear(), ev.md.m - 1, ev.md.d);
+            if (nd <= now) nd = new Date(now.getFullYear() + 1, ev.md.m - 1, ev.md.d);
+            const d = Math.ceil((nd - now) / 86400000);
+            all.push({ n: ev.name, d, p: true });
         }
-
-        const futureNames = new Set(future.map(e => e.name));
-        allItems = allItems.filter(item => !item.predicted || !futureNames.has(item.name));
-        allItems.sort((a, b) => a.days - b.days);
-
-        if (!allItems.length) { el.textContent = '暂无数据'; return; }
-
-        const top = allItems[0];
-        el.textContent = '★ 节日倒计时: ' + top.name + ': ' + (top.days <= 0 ? '今日' : top.days + '天');
-
-        let tip = '';
-        for (const item of allItems) {
-            const s = item.days <= 0 ? '今日' : item.days + '天';
-            const mark = item.predicted ? '*' : '';
-            tip += item.name + mark + ': ' + s + '
-';
-        }
-        if (panel) panel.setAttribute('data-tip', tip.trim());
-    } catch (e) {
-        console.error(e);
-        if (el.textContent.includes('加载')) el.textContent = '获取失败';
-    }
+        const fn = new Set(future.map(e => e.name));
+        all = all.filter(item => !item.p || !fn.has(item.n));
+        all.sort((a, b) => a.d - b.d);
+        if (!all.length) { el.textContent = "暂无数据"; return; }
+        const t = all[0];
+        el.textContent = "★ 节日倒计时: " + t.n + ": " + (t.d <= 0 ? "今日" : t.d + "天");
+        let tip = "";
+        for (const item of all) { const s = item.d <= 0 ? "今日" : item.d + "天"; tip += item.n + (item.p ? "*" : "") + ": " + s + "
+"; }
+        const panel = document.getElementById("festival-status");
+        if (panel) panel.setAttribute("data-tip", tip.trim());
+    } catch(e) { console.error(e); }
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => { try { updateFestivalCountdown(); } catch(e) { console.error(e); } }, 100);
-});
+setTimeout(updateFestivalCountdown, 500);
 // --- 节日倒计时结束 ---
 
 
