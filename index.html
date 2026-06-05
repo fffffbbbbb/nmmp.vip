@@ -5966,39 +5966,43 @@ function closeModal() {
 
     
 // --- 浮动 tooltip（突破父级 z-index 限制）---
-const ft = document.getElementById('floating-tip');
-document.addEventListener('mouseover', (e) => {
-    const el = e.target.closest('[data-tooltip]');
-    if (el) {
-        ft.textContent = el.getAttribute('data-tooltip');
-        ft.style.display = 'block';
-        ft.style.left = (e.pageX + 12) + 'px';
-        ft.style.top = (e.pageY + 12) + 'px';
-    }
-});
-document.addEventListener('mousemove', (e) => {
-    if (ft.style.display !== 'none') {
-        ft.style.left = (e.pageX + 12) + 'px';
-        ft.style.top = (e.pageY + 12) + 'px';
-    }
-});
-document.addEventListener('mouseout', (e) => {
-    if (e.target.closest('[data-tooltip]')) {
-        ft.style.display = 'none';
-    }
-});
-// 节日面板也用浮动 tooltip
-const fp = document.getElementById('festival-status');
-if (fp) {
-    fp.addEventListener('mouseenter', (e) => {
-        const tip = fp.getAttribute('data-tip');
-        if (tip) { ft.textContent = tip; ft.style.display = 'block'; ft.style.left = (e.pageX + 12) + 'px'; ft.style.top = (e.pageY + 12) + 'px'; }
+document.addEventListener('DOMContentLoaded', () => {
+    const ft = document.getElementById('floating-tip');
+    if (!ft) return;
+
+    document.addEventListener('mouseover', (e) => {
+        const el = e.target.closest('[data-tooltip]');
+        if (el) {
+            ft.textContent = el.getAttribute('data-tooltip');
+            ft.style.display = 'block';
+            ft.style.left = (e.pageX + 12) + 'px';
+            ft.style.top = (e.pageY + 12) + 'px';
+        }
     });
-    fp.addEventListener('mousemove', (e) => {
-        if (ft.style.display !== 'none') { ft.style.left = (e.pageX + 12) + 'px'; ft.style.top = (e.pageY + 12) + 'px'; }
+    document.addEventListener('mousemove', (e) => {
+        if (ft.style.display !== 'none') {
+            ft.style.left = (e.pageX + 12) + 'px';
+            ft.style.top = (e.pageY + 12) + 'px';
+        }
     });
-    fp.addEventListener('mouseleave', () => { ft.style.display = 'none'; });
-}
+    document.addEventListener('mouseout', (e) => {
+        if (e.target.closest('[data-tooltip]')) {
+            ft.style.display = 'none';
+        }
+    });
+
+    const fp = document.getElementById('festival-status');
+    if (fp) {
+        fp.addEventListener('mouseenter', (e) => {
+            const tip = fp.getAttribute('data-tip');
+            if (tip) { ft.textContent = tip; ft.style.display = 'block'; ft.style.left = (e.pageX + 12) + 'px'; ft.style.top = (e.pageY + 12) + 'px'; }
+        });
+        fp.addEventListener('mousemove', (e) => {
+            if (ft.style.display !== 'none') { ft.style.left = (e.pageX + 12) + 'px'; ft.style.top = (e.pageY + 12) + 'px'; }
+        });
+        fp.addEventListener('mouseleave', () => { ft.style.display = 'none'; });
+    }
+});
 </script>
     <!-- --- 节日倒计时 --- -->
     <div id="festival-status">
