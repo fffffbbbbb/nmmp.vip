@@ -5965,41 +5965,39 @@ function closeModal() {
         }
 
     
-// --- 浮动 tooltip（突破父级 z-index 限制）---
+// --- 浮动 tooltip（固定位置，不跟随鼠标）---
 document.addEventListener('DOMContentLoaded', () => {
     const ft = document.getElementById('floating-tip');
     if (!ft) return;
 
+    function showFt(el, text) {
+        if (!text) return;
+        ft.textContent = text;
+        ft.style.display = 'block';
+        const rect = el.getBoundingClientRect();
+        // 显示在元素下方，不够空间则显示在上方
+        const below = rect.bottom + 8;
+        if (below + ft.offsetHeight > window.innerHeight) {
+            ft.style.bottom = (window.innerHeight - rect.top + 8) + 'px';
+            ft.style.top = 'auto';
+        } else {
+            ft.style.top = below + 'px';
+            ft.style.bottom = 'auto';
+        }
+        ft.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - ft.offsetWidth - 8)) + 'px';
+    }
+
     document.addEventListener('mouseover', (e) => {
         const el = e.target.closest('[data-tooltip]');
-        if (el) {
-            ft.textContent = el.getAttribute('data-tooltip');
-            ft.style.display = 'block';
-            ft.style.left = (e.pageX + 12) + 'px';
-            ft.style.top = (e.pageY + 12) + 'px';
-        }
-    });
-    document.addEventListener('mousemove', (e) => {
-        if (ft.style.display !== 'none') {
-            ft.style.left = (e.pageX + 12) + 'px';
-            ft.style.top = (e.pageY + 12) + 'px';
-        }
+        if (el) showFt(el, el.getAttribute('data-tooltip'));
     });
     document.addEventListener('mouseout', (e) => {
-        if (e.target.closest('[data-tooltip]')) {
-            ft.style.display = 'none';
-        }
+        if (e.target.closest('[data-tooltip]')) ft.style.display = 'none';
     });
 
     const fp = document.getElementById('festival-status');
     if (fp) {
-        fp.addEventListener('mouseenter', (e) => {
-            const tip = fp.getAttribute('data-tip');
-            if (tip) { ft.textContent = tip; ft.style.display = 'block'; ft.style.left = (e.pageX + 12) + 'px'; ft.style.top = (e.pageY + 12) + 'px'; }
-        });
-        fp.addEventListener('mousemove', (e) => {
-            if (ft.style.display !== 'none') { ft.style.left = (e.pageX + 12) + 'px'; ft.style.top = (e.pageY + 12) + 'px'; }
-        });
+        fp.addEventListener('mouseenter', () => showFt(fp, fp.getAttribute('data-tip')));
         fp.addEventListener('mouseleave', () => { ft.style.display = 'none'; });
     }
 });
@@ -6010,6 +6008,6 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
 
     <!-- --- 浮动 tooltip --- -->
-    <div id="floating-tip" style="display:none;position:fixed;bottom:auto;left:auto;background:#000;color:#00FF00;font-size:12px;font-family:Consolas,monospace;padding:6px 12px;border-radius:4px;border:1px solid rgba(0,255,0,0.3);white-space:pre;z-index:999999;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.8);line-height:1.8;max-height:70vh;overflow-y:auto;"></div>
+    <div id="floating-tip" style="display:none;position:fixed;bottom:auto;left:auto;background:#000;color:#00FF00;font-size:15px;font-family:Consolas,monospace;padding:10px 16px;border-radius:6px;border:1px solid rgba(0,255,0,0.3);white-space:pre;z-index:999999;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.8);line-height:1.8;max-height:70vh;overflow-y:auto;"></div>
 </body>
 </html>
