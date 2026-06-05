@@ -457,6 +457,27 @@
             font-size: 13px;
             font-family: Arial, sans-serif;
             white-space: nowrap;
+            position: relative;
+            cursor: default;
+        }
+        /* 自定义黑色底绿字 tooltip */
+        #server-status .status-item[data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translate(-50%, -100%);
+            background: #000;
+            color: #00FF00;
+            font-size: 12px;
+            font-family: Arial, sans-serif;
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            white-space: nowrap;
+            z-index: 9999;
+            pointer-events: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.6);
         }
 
         #server-status .status-indicator {
@@ -2167,9 +2188,9 @@ async function updateServerStatus() {
                         'offline': '离线',
                     };
                     const label = statusLabels[system.status] || system.status;
-                    // title 设在父级 .status-item 上，鼠标移到文字或圆圈都能触发
+                    // 改用 data-tooltip 自定义tooltip
                     const parentItem = indicator.closest('.status-item');
-                    if (parentItem) parentItem.title = system.name + ': ' + label;
+                    if (parentItem) parentItem.setAttribute('data-tooltip', system.name + ': ' + label);
 
                     if (system.status === 'operational') {
                         // 绿色（已设置）
@@ -2210,7 +2231,7 @@ async function updateServerStatus() {
                 indicator.style.backgroundColor = '#666';
                 indicator.style.boxShadow = '0 0 6px #666';
                 const parentItem = indicator.closest('.status-item');
-                if (parentItem) parentItem.title = '无法获取状态';
+                if (parentItem) parentItem.setAttribute('data-tooltip', '无法获取状态');
             }
         });
 
