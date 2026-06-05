@@ -1668,7 +1668,7 @@
     /* --- 节日倒计时（右上角，与服务器状态对称） --- */
     #festival-status {
         position: fixed;
-        top: 70px;
+        top: 20px;
         right: 20px;
         z-index: 1000;
         background-color: rgba(0, 0, 0, 0.7);
@@ -1735,7 +1735,7 @@
     .f-item .f-days { color: #FFC107; font-weight: bold; font-family: Consolas, monospace; }
 r: #FFC107; font-weight: bold; font-family: Consolas, monospace; }
     @media (max-width: 767px) {
-        #festival-status { top: 62px; right: 8px; padding: 6px 10px; max-width: 200px; }
+        #festival-status { top: 6px; right: 8px; padding: 6px 10px; max-width: 200px; }
         #festival-status .festival-title { font-size: 12px; }
         #festival-status .festival-item { font-size: 11px; }
     }
@@ -2417,14 +2417,29 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- 节日倒计时 ---
 const festivalLimit = { key: 'sc_festival_ts', max: 10, windowMs: 3600000 };
 function checkFestivalLimit() {
-    const now = Date.now();
+    const now2 = Date.now();
     let rec;
     try { rec = JSON.parse(localStorage.getItem(festivalLimit.key) || 'null'); } catch(e) { rec = null; }
-    if (!rec || !rec.w || (now - rec.w > festivalLimit.windowMs)) rec = { w: now, c: 0 };
+    if (!rec || !rec.w || (now2 - rec.w > festivalLimit.windowMs)) rec = { w: now2, c: 0 };
     if (rec.c >= festivalLimit.max) return false;
     rec.c++;
     localStorage.setItem(festivalLimit.key, JSON.stringify(rec));
     return true;
+}
+
+// 根据历史活动的月/日，推算下一次的日期
+function nextOccurrence(month, day) {
+    const now = new Date();
+    let y = now.getFullYear();
+    let d = new Date(y, month - 1, day);
+    if (d <= now) d = new Date(y + 1, month - 1, day);
+    return d;
+}
+
+// 从日期字符串提取月日
+function getMonthDay(dateStr) {
+    const d = new Date(dateStr);
+    return { month: d.getMonth() + 1, day: d.getDate() };
 }
 
 async function updateFestivalCountdown() {
@@ -2453,32 +2468,48 @@ async function updateFestivalCountdown() {
         if (!data?.length) { if (mainEl.textContent === '加载中...') mainEl.textContent = '暂无数据'; return; }
 
         const now = new Date();
-        let events = data.map(e => ({ name: e.zh || e.en, ref: e.ref_zh || e.ref, start: new Date(e.start), end: new Date(e.end) }));
+        let events = data.map(e => ({
+            name: e.zh || e.en,
+            start: new Date(e.start),
+            end: new Date(e.end),
+            md: getMonthDay(e.start)
+        }));
 
+        // 区分未来事件和过去事件
         let future = events.filter(e => e.end > now).sort((a, b) => a.start - b.start);
         let past = events.filter(e => e.end <= now).sort((a, b) => b.start - a.start);
-        let show;
 
-        if (future.length) {
-            show = future[0];
-            const d = Math.ceil((show.start - now) / (1000 * 60 * 60 * 24));
-            mainEl.textContent = show.name + ': ' + (d <= 0 ? '进行中' : d + '天');
-        } else if (past.length) {
-            show = past[0];
-            mainEl.textContent = show.name + ': 已结束';
-        } else {
-            mainEl.textContent = '暂无数据'; return;
+        // 构建显示列表：未来事件 + 推算的历史事件
+        let allEvents = [];
+
+        // 未来事件直接用
+        for (const ev of future) {
+            allEvents.push({ name: ev.name, date: ev.start, type: 'future' });
         }
 
+        // 历史事件：用月日推算下一次
+        for (const ev of past) {
+            const nextDate = nextOccurrence(ev.md.month, ev.md.day);
+            allEvents.push({ name: ev.name, date: nextDate, type: 'predicted' });
+        }
+
+        // 按日期排序
+        allEvents.sort((a, b) => a.date - b.date);
+
+        // 取第一个作为主显示
+        const nearest = allEvents[0];
+        const daysLeft = Math.ceil((nearest.date - now) / (1000 * 60 * 60 * 24));
+        mainEl.textContent = nearest.name + ': ' + (daysLeft <= 0 ? '今日' : daysLeft + '天');
+
+        // 构建列表
         let listHtml = '';
-        const all = [...future, ...past].slice(0, 20);
-        for (const ev of all) {
-            const d = Math.ceil((ev.start - now) / (1000 * 60 * 60 * 24));
-            let dStr, tip;
-            if (d > 0) { dStr = d + '天'; tip = ev.name + ' - ' + d + '天后开始'; }
-            else if (ev.end > now) { dStr = '进行中'; tip = ev.name + ' - 正在进行'; }
-            else { dStr = '已结束'; tip = ev.name + ' - 已结束'; }
-            listHtml += '<div class="f-item" data-tip="' + tip + '"><span class="f-name">' + ev.name + '</span><span class="f-days">' + dStr + '</span></div>';
+        const shown = allEvents.slice(0, 25);
+        for (const ev of shown) {
+            const d = Math.ceil((ev.date - now) / (1000 * 60 * 60 * 24));
+            const dStr = d <= 0 ? '今日' : d + '天';
+            const label = ev.type === 'predicted' ? ev.name + '*' : ev.name;
+            const tip = ev.name + (ev.type === 'predicted' ? ' (按往年推算)' : '') + ' - ' + dStr;
+            listHtml += '<div class="f-item" data-tip="' + tip + '"><span class="f-name">' + label + '</span><span class="f-days">' + dStr + '</span></div>';
         }
         listEl.innerHTML = listHtml;
     } catch (e) {
@@ -2487,9 +2518,12 @@ async function updateFestivalCountdown() {
     }
 }
 
-const fs = document.getElementById('festival-status');
-if (fs) fs.addEventListener('click', () => fs.classList.toggle('collapsed'));
-document.addEventListener('DOMContentLoaded', updateFestivalCountdown);
+// 等待 DOM 就绪再绑定事件
+document.addEventListener('DOMContentLoaded', () => {
+    const fs = document.getElementById('festival-status');
+    if (fs) fs.addEventListener('click', () => fs.classList.toggle('collapsed'));
+    updateFestivalCountdown();
+});
 // --- 节日倒计时结束 ---
 
 
