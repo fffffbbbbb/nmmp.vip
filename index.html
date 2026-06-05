@@ -461,25 +461,8 @@
             cursor: default;
         }
         /* 自定义黑色底绿字 tooltip */
-        #server-status .status-item[data-tooltip]:hover::after,
-        #server-status .status-item[data-tooltip]:hover::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: -8px;
-            left: 50%;
-            transform: translate(-50%, 100%);
-            background: #000;
-            color: #00FF00;
-            font-size: 12px;
-            font-family: Arial, sans-serif;
-            padding: 4px 10px;
-            border-radius: 4px;
-            border: 1px solid rgba(0, 255, 0, 0.3);
-            white-space: nowrap;
-            z-index: 99999;
-            pointer-events: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.6);
-        }
+        
+        /* tooltip replaced by floating div */
 
         #server-status .status-indicator {
             width: 8px;
@@ -1693,27 +1676,7 @@
     }
     #festival-status .festival-title:hover { color: #FFC107; }
     #festival-status .festival-title { font-size: 15px; }
-    #festival-status[data-tip]:hover::after {
-        content: attr(data-tip);
-        position: absolute;
-        bottom: -8px;
-        right: 0;
-        transform: translate(0, 100%);
-        background: #000;
-        color: #00FF00;
-        font-size: 14px;
-        font-family: Consolas, monospace;
-        padding: 10px 16px;
-        border-radius: 6px;
-        border: 1px solid rgba(0, 255, 0, 0.3);
-        white-space: pre;
-        z-index: 99999;
-        pointer-events: none;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.8);
-        line-height: 1.8;
-        max-height: 70vh;
-        overflow-y: auto;
-    }
+
     #festival-status .collapse-toggle {
         transition: transform 0.3s ease;
         display: inline-block;
@@ -6001,10 +5964,48 @@ function closeModal() {
             }, { passive: false });
         }
 
-    </script>
+    
+// --- 浮动 tooltip（突破父级 z-index 限制）---
+const ft = document.getElementById('floating-tip');
+document.addEventListener('mouseover', (e) => {
+    const el = e.target.closest('[data-tooltip]');
+    if (el) {
+        ft.textContent = el.getAttribute('data-tooltip');
+        ft.style.display = 'block';
+        ft.style.left = (e.pageX + 12) + 'px';
+        ft.style.top = (e.pageY + 12) + 'px';
+    }
+});
+document.addEventListener('mousemove', (e) => {
+    if (ft.style.display !== 'none') {
+        ft.style.left = (e.pageX + 12) + 'px';
+        ft.style.top = (e.pageY + 12) + 'px';
+    }
+});
+document.addEventListener('mouseout', (e) => {
+    if (e.target.closest('[data-tooltip]')) {
+        ft.style.display = 'none';
+    }
+});
+// 节日面板也用浮动 tooltip
+const fp = document.getElementById('festival-status');
+if (fp) {
+    fp.addEventListener('mouseenter', (e) => {
+        const tip = fp.getAttribute('data-tip');
+        if (tip) { ft.textContent = tip; ft.style.display = 'block'; ft.style.left = (e.pageX + 12) + 'px'; ft.style.top = (e.pageY + 12) + 'px'; }
+    });
+    fp.addEventListener('mousemove', (e) => {
+        if (ft.style.display !== 'none') { ft.style.left = (e.pageX + 12) + 'px'; ft.style.top = (e.pageY + 12) + 'px'; }
+    });
+    fp.addEventListener('mouseleave', () => { ft.style.display = 'none'; });
+}
+</script>
     <!-- --- 节日倒计时 --- -->
     <div id="festival-status">
         <span class="festival-title" id="festival-main">&#127775; 节日倒计时: 加载中...</span>
     </div>
+
+    <!-- --- 浮动 tooltip --- -->
+    <div id="floating-tip" style="display:none;position:fixed;bottom:auto;left:auto;background:#000;color:#00FF00;font-size:12px;font-family:Consolas,monospace;padding:6px 12px;border-radius:4px;border:1px solid rgba(0,255,0,0.3);white-space:nowrap;z-index:999999;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.8);line-height:1.6;"></div>
 </body>
 </html>
