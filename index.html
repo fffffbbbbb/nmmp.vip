@@ -2118,39 +2118,18 @@ async function updateServerStatus() {
         return;
     }
 
-    // 优先同源代理（Cloudflare Pages Function），再尝试 CORS 代理
-    const jsonUrl = 'https://status.robertsspaceindustries.com/index.json';
-    const proxyUrls = (location.protocol !== 'file:')
-        ? ['/api/server-status']  // 部署到 Cloudflare 时直接走同源代理
-        : [];                     // file:// 下不走同源代理
-
-    // file:// 或同源代理失败时，用 CORS 代理兜底
-    const fallbackProxies = [
-        `https://corsproxy.io/?${encodeURIComponent(jsonUrl)}`,
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(jsonUrl)}`,
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(jsonUrl)}`
-    ];
-
+    // 通过 Cloudflare Pages Function 获取（服务端直连 RSI，无 CORS 问题）
     try {
         let data = null;
-        let lastError = null;
+        let proxyUrl = '/api/server-status';
+        // file:// 下提示部署
+        if (location.protocol === 'file:') {
+            throw new Error('请部署到 Cloudflare 或使用 http://localhost 访问');
+        }
 
-        // 先试同源代理，再试 CORS 代理
-        for (const proxyUrl of [...proxyUrls, ...fallbackProxies]) {
-            try {
-                console.log(`尝试代理: ${proxyUrl.split('?')[0]}`);
-                const response = await fetchWithTimeout(proxyUrl, {}, 8000);
-                
-                if (response.ok) {
-                    data = await response.json();
-                    console.log('✓ 代理成功:', proxyUrl.split('?')[0]);
-                    break;
-                }
-            } catch (err) {
-                console.warn(`✗ 代理失败:`, err.message);
-                lastError = err;
-                continue;
-            }
+        const response = await fetchWithTimeout(proxyUrl, {}, 8000);
+        if (response.ok) {
+            data = await response.json();
         }
         
         if (!data) {
@@ -2326,34 +2305,11 @@ async function updateFundingStats() {
     }
 
     try {
-        let ok = false;
-
-        // 1) 同源代理（localhost / Cloudflare）
-        if (location.protocol !== 'file:') {
-            try {
-                const b = JSON.stringify({ chart: 'day', fans: true, funds: true, alpha_slots: true, fleet: true });
-                const r = await fetchWithTimeout('/api/crowdfund-stats', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: b }, 15000);
-                if (r.ok) { const j = await r.json(); if (j?.data) { await display(j.data.funds / 100, j.data.fans); ok = true; } }
-            } catch (_) {}
-        }
-
-        // 2) corsproxy.io → RSI
-        if (!ok) {
-            try {
-                const b = JSON.stringify({ chart: 'day', fans: true, funds: true, alpha_slots: true, fleet: true });
-                const url = 'https://corsproxy.io/?' + encodeURIComponent('https://robertsspaceindustries.com/api/stats/getCrowdfundStats');
-                const r = await fetchWithTimeout(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: b }, 15000);
-                if (r.ok) { const j = await r.json(); if (j?.data) { await display(j.data.funds / 100, j.data.fans); ok = true; } }
-            } catch (_) {}
-        }
-
-        // 3) Wiki API 备用
-        if (!ok) {
-            const r = await fetchWithTimeout('https://api.star-citizen.wiki/api/stats', {}, 10000);
-            if (r.ok) { const j = await r.json(); if (j?.data?.[0]) { await display(j.data[0].funds, j.data[0].fans || j.data[0].fleet); ok = true; } }
-        }
-
-        if (!ok) throw new Error();
+        if (location.protocol === 'file:') throw new Error();
+        const b = JSON.stringify({ chart: 'day', fans: true, funds: true, alpha_slots: true, fleet: true });
+        const r = await fetchWithTimeout('/api/crowdfund-stats', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: b }, 15000);
+        if (r.ok) { const j = await r.json(); if (j?.data) { await display(j.data.funds / 100, j.data.fans); return; } }
+        throw new Error();
     } catch (e) {
         console.error('统计数据获取失败:', e);
         if (fundingAmountEl && (!fundingAmountEl.textContent || fundingAmountEl.textContent === '加载中...')) { fundingAmountEl.textContent = '获取失败'; fundingAmountEl.style.color = '#f44336'; }
@@ -5770,59 +5726,13 @@ function closeModal() {
 
                     let shipsData = null;
 
-                    // 1) 尝试调本地代理（端口 3000，同源）
-                    try {
-                        const proxyResp = await fetch('/api/wbccu', { method: 'POST' });
-                        if (proxyResp.ok) {
-                            const pd = await proxyResp.json();
-                            if (pd?.error) throw new Error(pd.error);
-                            shipsData = pd?.[0]?.data?.to?.ships || pd?.data?.to?.ships || pd?.ships;
-                            if (shipsData) console.log('WBCCU: 通过本地代理获取');
-                        }
-                    } catch (_) { /* 本地代理不可用 */ }
-
-                    // 2) 直连 RSI GraphQL（需要令牌）
-                    if (!shipsData) {
-                        const tokenEndpoint = 'https://robertsspaceindustries.com/api/account/v2/setAuthToken';
-                        const proxyList = [
-                            'https://corsproxy.io/?' + encodeURIComponent(tokenEndpoint),
-                            'https://api.allorigins.win/raw?url=' + encodeURIComponent(tokenEndpoint),
-                            'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(tokenEndpoint),
-                        ];
-                        let authToken = null;
-                        for (const proxyUrl of proxyList) {
-                            try {
-                                const r = await fetchWithTimeout(proxyUrl, {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: '{}',
-                                }, 12000);
-                                if (r.ok) {
-                                    const d = await r.json();
-                                    const td = d?.contents ? JSON.parse(d.contents) : d;
-                                    if (td?.success === 1 && td?.data) {
-                                        authToken = td.data;
-                                        break;
-                                    }
-                                }
-                            } catch (_) {}
-                        }
-                        if (!authToken) throw new Error('无法连接 RSI 服务器。\n请在项目目录运行启动本地代理：\n  node proxy.mjs\n然后访问 http://localhost:3000');
-
-                        const gqlResp = await fetch('https://robertsspaceindustries.com/pledge-store/api/upgrade/graphql', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'Cookie': 'Rsi-Account-Auth=' + authToken },
-                            body: JSON.stringify([{
-                                operationName: 'filterShips',
-                                variables: { fromFilters: [], toFilters: [] },
-                                query: 'query filterShips($fromId: Int, $toId: Int, $fromFilters: [FilterConstraintValues], $toFilters: [FilterConstraintValues]) { from(to: $toId, filters: $fromFilters) { ships { id } } to(from: $fromId, filters: $toFilters) { featured { reason style tagLabel tagStyle footNotes shipId } ships { id skus { id price upgradePrice unlimitedStock showStock available availableStock } } } }'
-                            }]),
-                        });
-                        if (!gqlResp.ok) throw new Error('RSI 服务器返回 HTTP ' + gqlResp.status);
-                        const result = await gqlResp.json();
-                        shipsData = result?.[0]?.data?.to?.ships;
-                        if (!shipsData) throw new Error('RSI 查询失败: ' + JSON.stringify(result).slice(0, 200));
-                    }
+                    // 通过 Cloudflare Pages Function 获取（服务端直连 RSI）
+                    const proxyResp = await fetch('/api/wbccu', { method: 'POST' });
+                    if (!proxyResp.ok) throw new Error('无法连接 RSI 服务器，请确认已部署到 Cloudflare');
+                    const pd = await proxyResp.json();
+                    if (pd?.error) throw new Error(pd.error);
+                    shipsData = pd?.[0]?.data?.to?.ships || pd?.data?.to?.ships || pd?.ships;
+                    if (!shipsData) throw new Error('RSI 查询失败');
 
                     // 处理数据
                     const filtered = shipsData.filter(s => new Set(s.skus.map(x => x.price)).size >= 2);
@@ -5864,29 +5774,21 @@ function closeModal() {
                 toolboxResult.textContent = '正在获取汇率数据…';
                 toolboxResult.className = 'loading';
 
-                try {
-                    let rates = {};
-                    // 一次 GET 请求获取中国银行整页 HTML，解析所有币种（比逐币种调用快 10 倍）
-                    const url = (location.protocol === 'file:')
-                        ? 'https://corsproxy.io/?' + encodeURIComponent('https://www.boc.cn/sourcedb/whpj/')
-                        : '/api/boc-rates';
-
-                    const resp = await fetchWithTimeout(url, {}, 20000);
+                                try {
+                    if (location.protocol === 'file:') throw new Error('请部署到 Cloudflare 后使用');
+                    const resp = await fetchWithTimeout('/api/boc-rates', {}, 20000);
                     if (!resp.ok) throw new Error('无法获取汇率数据');
-
                     const rawHtml = await resp.text();
-
-                    if (rawHtml) {
-                        for (const ccy of exchangeCurrencies) {
-                            const sr = new RegExp(`<td>${ccy}<\\/td>\\s*<td>([\\d.]+)<\\/td>\\s*<td>[\\d.]+<\\/td>\\s*<td>([\\d.]+)<\\/td>`, 'i');
-                            const br = new RegExp(`<td>${ccy}<\\/td>\\s*<td>([\\d.]+)<\\/td>\\s*<td>[\\d.]+<\\/td>\\s*<td>[\\d.]+<\\/td>\\s*<td>([\\d.]+)<\\/td>`, 'i');
-                            const sm = rawHtml.match(sr);
-                            const bm = rawHtml.match(br);
-                            if (sm && bm) rates[ccy] = { buy: parseFloat(bm[1]), sell: parseFloat(sm[2]) };
-                        }
+                    let rates = {};
+                    for (const ccy of exchangeCurrencies) {
+                        const sr = new RegExp(`<td>${ccy}</td>\s*<td>([\d.]+)</td>\s*<td>[\d.]+</td>\s*<td>([\d.]+)</td>`, 'i');
+                        const br = new RegExp(`<td>${ccy}</td>\s*<td>([\d.]+)</td>\s*<td>[\d.]+</td>\s*<td>[\d.]+</td>\s*<td>([\d.]+)</td>`, 'i');
+                        const sm = rawHtml.match(sr);
+                        const bm = rawHtml.match(br);
+                        if (sm && bm) rates[ccy] = { buy: parseFloat(bm[1]), sell: parseFloat(sm[2]) };
                     }
                     showExchangeRates(rates);
-                } catch (e) {
+                }} catch (e) {
                     toolboxResult.innerHTML = '<span class="error-msg">[错误] ' + e.message + '</span>';
                     toolboxResult.className = 'error';
                     console.error(e);
