@@ -207,6 +207,22 @@ http.createServer((req, res) => {
     return;
   }
 
+  // ---- 服务器状态代理（RSI 官方状态 JSON）----
+  if (url.pathname === '/api/server-status') {
+    https.get('https://status.robertsspaceindustries.com/index.json', (rsiRes) => {
+      let data = '';
+      rsiRes.on('data', chunk => data += chunk);
+      rsiRes.on('end', () => {
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'public, max-age=120' });
+        res.end(data);
+      });
+    }).on('error', (e) => {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    });
+    return;
+  }
+
   // ---- 汇率页面代理（GET 中国银行 HTML，前端解析）----
   if (url.pathname === '/api/boc-rates') {
     https.get('https://www.boc.cn/sourcedb/whpj/', (bocRes) => {

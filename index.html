@@ -2118,20 +2118,25 @@ async function updateServerStatus() {
         return;
     }
 
-    // 多个CORS代理备用
+    // 优先同源代理（Cloudflare Pages Function），再尝试 CORS 代理
     const jsonUrl = 'https://status.robertsspaceindustries.com/index.json';
-    const proxyUrls = [
+    const proxyUrls = (location.protocol !== 'file:')
+        ? ['/api/server-status']  // 部署到 Cloudflare 时直接走同源代理
+        : [];                     // file:// 下不走同源代理
+
+    // file:// 或同源代理失败时，用 CORS 代理兜底
+    const fallbackProxies = [
         `https://corsproxy.io/?${encodeURIComponent(jsonUrl)}`,
         `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(jsonUrl)}`,
         `https://api.allorigins.win/raw?url=${encodeURIComponent(jsonUrl)}`
     ];
-    
+
     try {
         let data = null;
         let lastError = null;
-        
-        // 依次尝试每个代理
-        for (const proxyUrl of proxyUrls) {
+
+        // 先试同源代理，再试 CORS 代理
+        for (const proxyUrl of [...proxyUrls, ...fallbackProxies]) {
             try {
                 console.log(`尝试代理: ${proxyUrl.split('?')[0]}`);
                 const response = await fetchWithTimeout(proxyUrl, {}, 8000);
