@@ -2437,8 +2437,7 @@ async function updateFestivalCountdown() {
     const panel = document.getElementById('festival-status');
     if (!el) return;
 
-    let cached = null;
-    try { const c = localStorage.getItem('sc_festival_cache'); if (c) { const p = JSON.parse(c); if (Date.now() - p.t < 3600000) cached = p.d; } } catch(e) {}
+    let cached = null; try { const c = localStorage.getItem('sc_festival_cache'); if (c) { const p = JSON.parse(c); if (p?.d && Array.isArray(p.d) && Date.now() - p.t < 3600000) cached = p.d; else localStorage.removeItem('sc_festival_cache'); } } catch(e) { localStorage.removeItem('sc_festival_cache'); }
 
     try {
         let data = cached;
@@ -2506,7 +2505,9 @@ async function updateFestivalCountdown() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', updateFestivalCountdown);
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => { try { updateFestivalCountdown(); } catch(e) { console.error(e); } }, 100);
+});
 // --- 节日倒计时结束 ---
 
 
