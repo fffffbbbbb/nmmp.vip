@@ -1692,6 +1692,28 @@
         gap: 6px;
     }
     #festival-status .festival-title:hover { color: #FFC107; }
+    #festival-status .festival-title { font-size: 15px; }
+    #festival-status[data-tip]:hover::after {
+        content: attr(data-tip);
+        position: absolute;
+        bottom: -8px;
+        right: 0;
+        transform: translate(0, 100%);
+        background: #000;
+        color: #00FF00;
+        font-size: 14px;
+        font-family: Consolas, monospace;
+        padding: 10px 16px;
+        border-radius: 6px;
+        border: 1px solid rgba(0, 255, 0, 0.3);
+        white-space: pre;
+        z-index: 99999;
+        pointer-events: none;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.8);
+        line-height: 1.8;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
     #festival-status .collapse-toggle {
         transition: transform 0.3s ease;
         display: inline-block;
