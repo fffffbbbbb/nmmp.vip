@@ -2167,7 +2167,9 @@ async function updateServerStatus() {
                         'offline': '离线',
                     };
                     const label = statusLabels[system.status] || system.status;
-                    indicator.title = system.name + ': ' + label;
+                    // title 设在父级 .status-item 上，鼠标移到文字或圆圈都能触发
+                    const parentItem = indicator.closest('.status-item');
+                    if (parentItem) parentItem.title = system.name + ': ' + label;
 
                     if (system.status === 'operational') {
                         // 绿色（已设置）
@@ -2207,7 +2209,8 @@ async function updateServerStatus() {
             if (indicator) {
                 indicator.style.backgroundColor = '#666';
                 indicator.style.boxShadow = '0 0 6px #666';
-                indicator.title = '无法获取状态';
+                const parentItem = indicator.closest('.status-item');
+                if (parentItem) parentItem.title = '无法获取状态';
             }
         });
 
