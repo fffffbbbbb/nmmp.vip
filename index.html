@@ -385,18 +385,18 @@
     100% { color: #ff00ff; }     /* 紫色 */
 }
 
-        /* --- 新增音乐控制图标样式 --- */
+        /* --- 新增音乐控制图标样式（嵌入搜索框） --- */
         #music-control {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            font-size: 24px;
+            font-size: 20px;
             color: #ffffff;
             cursor: pointer;
-            z-index: 1000; /* 确保在最上层 */
-            user-select: none; /* 防止选中 */
+            z-index: 1000;
+            user-select: none;
             opacity: 0.7;
             transition: opacity 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         #music-control:hover {
@@ -461,12 +461,13 @@
             cursor: default;
         }
         /* 自定义黑色底绿字 tooltip */
-        #server-status .status-item[data-tooltip]:hover::after {
+        #server-status .status-item[data-tooltip]:hover::after,
+        #festival-status .f-item[data-tip]:hover::after {
             content: attr(data-tooltip);
             position: absolute;
-            top: -8px;
+            bottom: -8px;
             left: 50%;
-            transform: translate(-50%, -100%);
+            transform: translate(-50%, 100%);
             background: #000;
             color: #00FF00;
             font-size: 12px;
@@ -1663,6 +1664,102 @@
     }
 
 
+
+    /* --- 节日倒计时样式（右上角，与服务器状态对称） --- */
+    #festival-status {
+        position: fixed;
+        top: 70px;
+        right: 20px;
+        z-index: 1000;
+        background-color: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(10px);
+        padding: 10px 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+        font-family: Arial, sans-serif;
+        max-width: 260px;
+    }
+    #festival-status .festival-title {
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        user-select: none;
+        white-space: nowrap;
+    }
+    #festival-status .festival-title:hover {
+        color: #FFC107;
+    }
+    #festival-status .festival-details {
+        margin-top: 6px;
+        display: block;
+    }
+    #festival-status.collapsed .festival-details,
+    #festival-status.collapsed .festival-divider {
+        display: none;
+    }
+    #festival-status.collapsed .collapse-toggle {
+        transform: rotate(-90deg);
+        display: inline-block;
+        transition: transform 0.3s ease;
+    }
+    #festival-status .collapse-toggle {
+        transition: transform 0.3s ease;
+        display: inline-block;
+    }
+    #festival-status .festival-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #ffffff;
+        font-size: 13px;
+        position: relative;
+    }
+    #festival-status .festival-count {
+        color: #00FF00;
+        font-weight: bold;
+        font-size: 14px;
+    }
+    #festival-status .festival-divider {
+        width: 100%;
+        height: 1px;
+        background-color: rgba(255, 255, 255, 0.1);
+        margin: 6px 0;
+    }
+    #festival-status .festival-list {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    #festival-status .festival-list::-webkit-scrollbar {
+        width: 4px;
+    }
+    #festival-status .festival-list::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    #festival-status .festival-list::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 2px;
+    }
+    .f-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 3px 0;
+        color: rgba(255,255,255,0.7);
+        font-size: 12px;
+        cursor: default;
+        position: relative;
+    }
+    .f-item .f-name { color: #ddd; }
+    .f-item .f-days { color: #FFC107; font-weight: bold; font-family: Consolas, monospace; }
+    @media (max-width: 767px) {
+        #festival-status { top: 62px; right: 8px; padding: 6px 10px; max-width: 200px; }
+        #festival-status .festival-title { font-size: 12px; }
+        #festival-status .festival-item { font-size: 11px; }
+    }
+
     </style>
 </head>
 <body>
@@ -1936,6 +2033,7 @@
 
     <!-- 搜索框 -->
     <div id="search-container">
+        <div id="music-control" title="点击静音/播放">&#127925;</div>
         <input type="text" id="search-input" placeholder="快速定位搜索内容..." autocomplete="off">
         <button id="search-btn" title="搜索">
             <svg id="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1945,9 +2043,7 @@
         </button>
     </div>
 
-    <!-- --- 新增音乐控制图标 --- -->
-    <div id="music-control" title="点击静音/播放">&#127925;</div> <!-- 音符符号 -->
-    <!-- --- 新增音乐控制图标结束 --- -->
+
 
     <!-- --- 新增全屏图片查看器 HTML 结构 --- -->
     <div id="fullscreen-viewer">
@@ -2337,6 +2433,98 @@ document.addEventListener('DOMContentLoaded', () => {
     initFundingStatsToggle();
 });
 // --- 募集资金和玩家人数更新结束 ---
+
+// --- 节日倒计时 ---
+// 频率限制（每小时最多 10 次，超限用缓存）
+const festivalLimit = { key: 'sc_festival_ts', max: 10, windowMs: 3600000 };
+function checkFestivalLimit() {
+    const now = Date.now();
+    let rec;
+    try { rec = JSON.parse(localStorage.getItem(festivalLimit.key) || 'null'); } catch(e) { rec = null; }
+    if (!rec || !rec.w || (now - rec.w > festivalLimit.windowMs)) rec = { w: now, c: 0 };
+    if (rec.c >= festivalLimit.max) return false;
+    rec.c++;
+    localStorage.setItem(festivalLimit.key, JSON.stringify(rec));
+    return true;
+}
+
+async function updateFestivalCountdown() {
+    const mainEl = document.getElementById('festival-main');
+    const listEl = document.getElementById('festival-list');
+    if (!mainEl) return;
+
+    // 尝试加载缓存
+    let cached = null;
+    try { const c = localStorage.getItem('sc_festival_cache'); if (c) { const p = JSON.parse(c); if (Date.now() - p.t < 3600000) cached = p.d; } } catch(e) {}
+
+    // 频率限制：超限且无缓存时用旧数据
+    if (!checkFestivalLimit() && !cached) return;
+
+    try {
+        let data = cached;
+
+        if (checkFestivalLimit()) {
+            let raw = null;
+            if (location.protocol !== 'file:') {
+                try { const r = await fetchWithTimeout('/api/festivals', {}, 15000); if (r.ok) raw = await r.json(); } catch(_) {}
+            }
+            if (!raw) {
+                try { const r = await fetchWithTimeout('https://eahi.org/api/eventsTracker/', {}, 15000); if (r.ok) raw = await r.json(); } catch(_) {}
+            }
+            if (raw?.data?.length) {
+                data = raw.data;
+                try { localStorage.setItem('sc_festival_cache', JSON.stringify({ t: Date.now(), d: data })); } catch(e) {}
+            } else if (!data) {
+                mainEl.textContent = '暂无数据'; return;
+            }
+        } else if (!data) {
+            return;
+        }
+
+        const now = new Date();
+        let events = data.map(e => ({ name: e.en, ref: e.ref, start: new Date(e.start), end: new Date(e.end) }));
+
+        // 找到最近的（未来或过去）活动
+        let future = events.filter(e => e.end > now).sort((a, b) => a.start - b.start);
+        let past = events.filter(e => e.end <= now).sort((a, b) => b.start - a.start);
+        let show;
+
+        if (future.length) {
+            show = future[0];
+            const daysLeft = Math.ceil((show.start - now) / (1000 * 60 * 60 * 24));
+            const dayStr = daysLeft <= 0 ? '\u8fdb\u884c\u4e2d' : daysLeft + '\u5929';
+            mainEl.textContent = show.name + ': ' + dayStr;
+        } else if (past.length) {
+            show = past[0];
+            mainEl.textContent = show.name + ': \u5df2\u7ed3\u675f';
+        } else {
+            mainEl.textContent = '\u6682\u65e0\u6570\u636e'; return;
+        }
+
+        // 列表（全部排序，未来在前）
+        let listHtml = '';
+        const displayEvents = [...future, ...past].slice(0, 20);
+        for (const ev of displayEvents) {
+            const d = Math.ceil((ev.start - now) / (1000 * 60 * 60 * 24));
+            let dStr, tip;
+            if (d > 0) { dStr = d + '\u5929'; tip = ev.name + ' - ' + d + '\u5929\u540e\u5f00\u59cb'; }
+            else if (ev.end > now) { dStr = '\u8fdb\u884c\u4e2d'; tip = ev.name + ' - \u6b63\u5728\u8fdb\u884c'; }
+            else { dStr = '\u5df2\u7ed3\u675f'; tip = ev.name + ' - \u5df2\u7ed3\u675f'; }
+            listHtml += '<div class="f-item" data-tip="' + tip + '"><span class="f-name">' + ev.name + '</span><span class="f-days">' + dStr + '</span></div>';
+        }
+        listEl.innerHTML = listHtml;
+    } catch (e) {
+        console.error('\u8282\u65e5\u5012\u8ba1\u65f6\u83b7\u53d6\u5931\u8d25:', e);
+        if (!mainEl.textContent || mainEl.textContent === '\u52a0\u8f7d\u4e2d...') mainEl.textContent = '\u83b7\u53d6\u5931\u8d25';
+    }
+}
+
+// 折叠
+const ft = document.getElementById('festival-toggle');
+if (ft) ft.addEventListener('click', () => document.getElementById('festival-status').classList.toggle('collapsed'));
+// 初始加载
+document.addEventListener('DOMContentLoaded', updateFestivalCountdown);
+// --- 节日倒计时结束 ---
 
 
 
@@ -5867,5 +6055,19 @@ function closeModal() {
         }
 
     </script>
-    </body>
+    
+    <!-- --- 节日倒计时 --- -->
+    <div id="festival-status" class="collapsed">
+        <span class="festival-title" id="festival-toggle">
+            <span class="collapse-toggle">&#9660;</span> &#127775; 节日倒计时
+        </span>
+        <div class="festival-details" id="festival-details">
+            <div class="festival-item">
+                <span class="festival-count" id="festival-main">加载中...</span>
+            </div>
+            <div class="festival-divider"></div>
+            <div class="festival-list" id="festival-list"></div>
+        </div>
+    </div>
+</body>
 </html>
