@@ -2407,22 +2407,20 @@ async function updateFestivalCountdown() {
         try { const r = await fetch("https://eahi.org/api/eventsTracker/zh/"); if (r.ok) data = await r.json(); } catch(e) {}
         if (!data?.data?.length) { el.textContent = "暂无数据"; return; }
         const now = new Date();
-        let items = data.data.map(e => ({ name: e.zh || e.en, start: new Date(e.start), end: new Date(e.end), md: { m: new Date(e.start).getMonth() + 1, d: new Date(e.start).getDate() } }));
-        // 只保留指定的节日：外星周、奠基节、海盗周、周年庆IAE、光灯节、科拉爱人节、火红节、幸运星节、舰队周ILW
-        const allowedFestivals = ['外星周', '奠基节', '海盗周', '星际航空航天博览会', '光灯节', '科拉爱人节', '火红节', '幸运星节', '不败舰队启航周'];
-        // 自定义显示名称（API名称 → 用户想要的显示名称）
-        const displayNames = {
-            '外星周': '外星周',
-            '奠基节': '奠基节',
-            '海盗周': '海盗周',
-            '星际航空航天博览会': '周年庆IAE',
-            '光灯节': '光灯节',
-            '科拉爱人节': '科拉爱人节',
-            '火红节': '火红节',
-            '幸运星节': '幸运星节',
-            '不败舰队启航周': '舰队周ILW'
+        let items = data.data.map(e => ({ en: e.en, start: new Date(e.start), end: new Date(e.end), md: { m: new Date(e.start).getMonth() + 1, d: new Date(e.start).getDate() } }));
+        // 以英文名匹配，映射为中文显示名称（只保留指定的9个节日）
+        const festivalMap = {
+            'Red Festival': '火红节',
+            'Coramor': '科拉爱人节',
+            'Stella Fortuna': '幸运星节',
+            'Alien Week': '外星周',
+            'Foundation Festival': '奠基节',
+            'Pirate Week': '海盗周',
+            'Intergalactic Aerospace Expo (IAE)': '周年庆IAE',
+            'Luminalia': '光灯节',
+            'Invictus Launch Week (ILW)': '舰队周ILW'
         };
-        items = items.filter(e => allowedFestivals.includes(e.name)).map(e => ({ ...e, name: displayNames[e.name] || e.name }));
+        items = items.filter(e => festivalMap[e.en]).map(e => ({ ...e, name: festivalMap[e.en] }));
         let future = items.filter(e => e.end > now).sort((a, b) => a.start - b.start);
         let past = items.filter(e => e.end <= now);
         let all = [];
