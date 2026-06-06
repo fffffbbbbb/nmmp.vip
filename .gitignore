@@ -2,3 +2,6 @@
 server.mjs
 start.bat
 close.bat
+
+# Reasonix 工具配置
+.reasonix/
