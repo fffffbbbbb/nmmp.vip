@@ -138,7 +138,6 @@
         .tree-node-content.active { background: rgba(76, 175, 80, 0.18); color: #4CAF50; }
         .tree-node-content.active-ancestor { background: rgba(76, 175, 80, 0.10); color: #66bb6a; border-left: 2px solid rgba(76,175,80,0.4); }
         .tree-node-content.search-active { background: rgba(255, 152, 0, 0.25); color: #ffb74d; border-left: 2px solid #FF9800; }
-        .tree-node-content.search-ancestor { background: rgba(255, 152, 0, 0.12); color: #ffa726; }
         .tree-node-content .toggle { width: 16px; flex-shrink: 0; text-align: center; color: rgba(255,255,255,0.3); font-size: 10px; transition: transform 0.2s; }
         .tree-node-content .toggle.expanded { transform: rotate(90deg); }
         .tree-node-content .node-name { flex: 1; }
@@ -957,6 +956,14 @@
             // Click to scroll to section
             content.addEventListener('click', (e) => {
                 e.stopPropagation();
+
+                // --- CANCEL SEARCH if clicking a non-highlighted node ---
+                if (!content.classList.contains('search-active')) {
+                    const si = document.getElementById('search-input');
+                    if (si) { si.value = ''; }
+                    document.querySelectorAll('.tree-node-content').forEach(el => el.classList.remove('search-active'));
+                    searchResults = []; currentSearchIndex = -1;
+                }
 
                 // --- PATH HIGHLIGHTING ---
                 // Clear all active classes
@@ -1786,7 +1793,7 @@
     function performSearch() {
         const term = searchInput.value.trim().toLowerCase();
         // Clear previous search highlights from directory tree
-        document.querySelectorAll('.tree-node-content').forEach(el => el.classList.remove('search-active', 'search-ancestor'));
+        document.querySelectorAll('.tree-node-content').forEach(el => el.classList.remove('search-active'));
         if (!term) { searchResults = []; currentSearchIndex = -1; return; }
 
         const mainContent = document.getElementById('main-content');
@@ -1830,18 +1837,17 @@
         const firstCard = searchResults[0];
         const firstPath = findTreeNodePath(treeData, firstCard.dataset.task, null);
         if (firstPath) {
-            // Highlight path in tree directory with YELLOW (search colors)
-            document.querySelectorAll('.tree-node-content').forEach(el => el.classList.remove('search-active', 'search-ancestor'));
-            const parts = firstPath.split(' > ');
-            for (let i = 0; i < parts.length; i++) {
-                const partial = parts.slice(0, i + 1).join(' > ');
-                document.querySelectorAll('.tree-node-content').forEach(el => {
-                    if (el.dataset.path === partial) {
-                        if (i === parts.length - 1) el.classList.add('search-active');
-                        else el.classList.add('search-ancestor');
-                    }
-                });
-            }
+            // Highlight ALL matched leaf nodes with yellow (no ancestor highlighting)
+            searchResults.forEach(card => {
+                const p = findTreeNodePath(treeData, card.dataset.task, null);
+                if (p) {
+                    const leaf = p.split(' > ').pop();
+                    document.querySelectorAll('.tree-node-content').forEach(el => {
+                        const elName = el.dataset.path ? el.dataset.path.split(' > ').pop() : '';
+                        if (elName === leaf && el.dataset.path === p) el.classList.add('search-active');
+                    });
+                }
+            });
 
             // Show only this branch content + all matches
             document.querySelectorAll('.article-card').forEach(card => {
@@ -1879,17 +1885,10 @@
             // Switch branch to the navigated card
             const path = findTreeNodePath(treeData, card.dataset.task, null);
             if (path) {
-                document.querySelectorAll('.tree-node-content').forEach(el => el.classList.remove('search-active', 'search-ancestor'));
-                const parts = path.split(' > ');
-                for (let i = 0; i < parts.length; i++) {
-                    const partial = parts.slice(0, i + 1).join(' > ');
-                    document.querySelectorAll('.tree-node-content').forEach(el => {
-                        if (el.dataset.path === partial) {
-                            if (i === parts.length - 1) el.classList.add('search-active');
-                            else el.classList.add('search-ancestor');
-                        }
-                    });
-                }
+                document.querySelectorAll('.tree-node-content').forEach(el => el.classList.remove('search-active'));
+                document.querySelectorAll('.tree-node-content').forEach(el => {
+                    if (el.dataset.path === path) el.classList.add('search-active');
+                });
                 expandTreePath(path);
                 document.querySelectorAll('.article-card').forEach(c => {
                     c.style.display = c.dataset.task === card.dataset.task ? '' : 'none';
