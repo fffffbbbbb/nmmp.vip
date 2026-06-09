@@ -1716,6 +1716,43 @@
     let searchResults = [];
     let currentSearchIndex = -1;
 
+    // Find a node's full path string (used by tree) by searching treeData
+    function findTreeNodePath(nodes, targetId, pathArr) {
+        for (const n of nodes) {
+            const cur = pathArr ? [...pathArr, n.name] : [n.name];
+            if (n.id === targetId) return cur.join(' > ');
+            if (n.children) {
+                const found = findTreeNodePath(n.children, targetId, cur);
+                if (found) return found;
+            }
+        }
+        return null;
+    }
+
+    // Expand all tree nodes along a given path string (e.g. "注册 > 购买 > 准备")
+    function expandTreePath(pathString) {
+        // Split into parts and expand progressively
+        const parts = pathString.split(' > ');
+        let accumulated = '';
+        for (let i = 0; i < parts.length; i++) {
+            accumulated = accumulated ? accumulated + ' > ' + parts[i] : parts[i];
+            // Find the tree-node-content with this exact data-path
+            const el = document.querySelector(`.tree-node-content[data-path="${accumulated}"]`);
+            if (el) {
+                // Find its .tree-children sibling and open it (unless it's the leaf)
+                const wrapper = el.closest('.tree-node');
+                if (wrapper) {
+                    const children = wrapper.querySelector('.tree-children');
+                    const toggle = el.querySelector('.toggle');
+                    if (children) {
+                        children.classList.add('open');
+                        if (toggle) { toggle.classList.add('expanded'); toggle.textContent = '▾'; }
+                    }
+                }
+            }
+        }
+    }
+
     const taskModalContent = {
         '注册账号': '立即注册 跳转已自动填写邀请码的官网注册页面 慎重选择163邮箱注册 易被撞库洗号 初始邮箱权重大 勿用非本人邮箱注册',
         '购买资格包': '购买游戏资格包 一般选最便宜的45USD的包购买 运气好能碰到游戏节日打折40.50USD或者带有LTI永久保险标志的资格包 资格包包含游戏资格和一艘最基础的飞船 可在官网机库里查看',
@@ -1779,6 +1816,39 @@
             return;
         }
 
+        // For each found task, build path set
+        const pathSet = new Set();
+        searchResults.forEach(card => {
+            const path = findTreeNodePath(treeData, card.dataset.task, null);
+            if (path) pathSet.add(path);
+        });
+
+        // Expand all ancestor nodes in directory tree
+        pathSet.forEach(p => expandTreePath(p));
+
+        // Show the FIRST match's branch content
+        const firstCard = searchResults[0];
+        const firstPath = findTreeNodePath(treeData, firstCard.dataset.task, null);
+        if (firstPath) {
+            // Highlight path in tree directory
+            document.querySelectorAll('.tree-node-content').forEach(el => el.classList.remove('active', 'active-ancestor'));
+            const parts = firstPath.split(' > ');
+            for (let i = 0; i < parts.length; i++) {
+                const partial = parts.slice(0, i + 1).join(' > ');
+                document.querySelectorAll('.tree-node-content').forEach(el => {
+                    if (el.dataset.path === partial) {
+                        if (i === parts.length - 1) el.classList.add('active');
+                        else el.classList.add('active-ancestor');
+                    }
+                });
+            }
+
+            // Show only this branch content + all matches
+            document.querySelectorAll('.article-card').forEach(card => {
+                card.style.display = card.dataset.task === firstCard.dataset.task ? '' : 'none';
+            });
+        }
+
         currentSearchIndex = 0;
         highlightAndFocus(searchResults[0]);
     }
@@ -1786,16 +1856,16 @@
     function highlightAndFocus(card) {
         searchResults.forEach(c => { c.style.borderColor = ''; c.style.boxShadow = ''; });
         card.style.borderColor = '#FF9800';
-        card.style.boxShadow = '0 0 20px rgba(255,152,0,0.4)';
+        card.style.boxShadow = '0 0 20px rgba(255,152,0,0.8)';
         card.scrollIntoView({ behavior: 'smooth', block: 'center' });
         
         if (searchResults.length > 1) {
             const hint = document.createElement('div');
             hint.id = 'search-result-hint';
             hint.textContent = '搜索结果: ' + (currentSearchIndex + 1) + ' / ' + searchResults.length;
-            hint.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;z-index:10001;pointer-events:none;animation:fadeInOut 2s ease-in-out;';
+            hint.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:#FFC107;padding:10px 20px;border-radius:20px;font-size:14px;z-index:10001;pointer-events:none;';
             document.body.appendChild(hint);
-            setTimeout(() => { if (hint.parentNode) hint.remove(); }, 2000);
+            setTimeout(() => { if (hint.parentNode) hint.remove(); }, 2500);
         }
     }
 
@@ -1807,7 +1877,27 @@
         if (searchResults.length > 0 && (e.key === 'ArrowRight' || e.key === 'ArrowLeft') && e.ctrlKey) {
             if (e.key === 'ArrowRight') currentSearchIndex = (currentSearchIndex + 1) % searchResults.length;
             else currentSearchIndex = (currentSearchIndex - 1 + searchResults.length) % searchResults.length;
-            highlightAndFocus(searchResults[currentSearchIndex]);
+            const card = searchResults[currentSearchIndex];
+            // Switch branch to the navigated card
+            const path = findTreeNodePath(treeData, card.dataset.task, null);
+            if (path) {
+                document.querySelectorAll('.tree-node-content').forEach(el => el.classList.remove('active', 'active-ancestor'));
+                const parts = path.split(' > ');
+                for (let i = 0; i < parts.length; i++) {
+                    const partial = parts.slice(0, i + 1).join(' > ');
+                    document.querySelectorAll('.tree-node-content').forEach(el => {
+                        if (el.dataset.path === partial) {
+                            if (i === parts.length - 1) el.classList.add('active');
+                            else el.classList.add('active-ancestor');
+                        }
+                    });
+                }
+                expandTreePath(path);
+                document.querySelectorAll('.article-card').forEach(c => {
+                    c.style.display = c.dataset.task === card.dataset.task ? '' : 'none';
+                });
+            }
+            highlightAndFocus(card);
             e.preventDefault();
         }
     });
