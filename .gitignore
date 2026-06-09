@@ -5,3 +5,4 @@ close.bat
 
 # Reasonix 工具配置
 .reasonix/
+.codegraph/
