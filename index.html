@@ -608,6 +608,7 @@
                 {
                     name: '购买资格包', id: '购买资格包', children: [
                         { name: '汉化', id: '汉化' },
+                        { name: '常见错误码', id: '常见错误码' },
                         { name: '常用网站', id: '常用网站' },
                         {
                             name: '准备启动器', id: '准备启动器', children: [
@@ -694,6 +695,27 @@
                 { image: '汉化2.avif', text: '如果网站抽风，直接在系统的微软商店里下载汉化工具即可。' }
             ],
             action: { text: '汉化组官网', url: 'https://citizenwiki.cn/Localization' }
+        },
+        '常见错误码': {
+            title: '常见错误码',
+            intro: '查询星际公民常见错误码及其解决方法。',
+            slides: [
+                { text: '<span class="highlight-red" style="font-size:18px;">⚠ 免责声明：</span>以下错误码信息由玩家社区整理，仅供参考。解决方法可能因游戏版本更新而发生变化，如遇问题建议优先查阅 <a href="https://robertsspaceindustries.com/en/telemetry" target="_blank" style="color:#4CAF50;">RSI 官网</a> 或 <a href="https://support.robertsspaceindustries.com/hc/en-us" target="_blank" style="color:#4CAF50;">官方支持中心</a> 获取最新信息。<br><br>' },
+                { text: '<span class="highlight-red">错误码 10001 / 10002</span> — <span class="highlight-purple">网络连接超时</span>。检查网络连接，尝试重启路由器或使用加速器。如果持续出现，可能是服务器端问题，查看 RSI 官网状态。' },
+                { text: '<span class="highlight-red">错误码 10004</span> — <span class="highlight-purple">令牌验证失败</span>。退出启动器，删除 %AppData%\\RSI Launcher 目录下的 cookies 文件，重新登录。' },
+                { text: '<span class="highlight-red">错误码 10005</span> — <span class="highlight-purple">服务器拒绝连接</span>。启动器或游戏版本可能过旧，完全退出后重新打开启动器更新至最新版本。' },
+                { text: '<span class="highlight-red">错误码 15003 / 15004</span> — <span class="highlight-purple">账号认证失败</span>。退出启动器，清除登录缓存后重新输入账号密码登录。' },
+                { text: '<span class="highlight-red">错误码 16000 / 16001 / 16003</span> — <span class="highlight-purple">启动器更新失败</span>。完全退出启动器，结束后台 RSI Launcher 进程，以管理员身份重新运行启动器。' },
+                { text: '<span class="highlight-red">错误码 16008</span> — <span class="highlight-purple">启动器组件损坏</span>。卸载 RSI Launcher，重新从官网下载安装最新版启动器。' },
+                { text: '<span class="highlight-red">错误码 19000</span> — <span class="highlight-purple">Easy Anti-Cheat (EAC) 加载失败</span>。以管理员身份运行启动器，检查杀毒软件是否拦截 EAC，尝试关闭杀软或添加 EAC 到白名单。' },
+                { text: '<span class="highlight-red">错误码 19001 / 20005</span> — <span class="highlight-purple">游戏文件损坏或缺失</span>。在启动器设置中点击 "Verify" 验证游戏文件完整性，等待自动修复。' },
+                { text: '<span class="highlight-red">错误码 20006 / 20007</span> — <span class="highlight-purple">着色器缓存损坏</span>。删除 %LocalAppData%\\Star Citizen\\shaders 文件夹，重新启动游戏。' },
+                { text: '<span class="highlight-red">错误码 20010 / 30000</span> — <span class="highlight-purple">显卡/驱动兼容问题</span>。更新显卡驱动至最新版本，检查显卡是否达到最低配置要求（最低 GTX 1060 / RX 580）。' },
+                { text: '<span class="highlight-red">错误码 30001 / 30002</span> — <span class="highlight-purple">内存不足</span>。星际公民推荐 32GB 内存，至少需 16GB。关闭后台其他程序，检查虚拟内存设置（建议 1.5 倍物理内存）。' },
+                { text: '<span class="highlight-red">错误码 40000 / 40001</span> — <span class="highlight-purple">PTU 版本访问受限</span>。确认您是否拥有 PTU 访问权限（订阅/活跃账号），检查启动器登录通道是否已切换至 PTU。' },
+                { text: '<span class="highlight-red">错误 CODE 2 / CODE 3</span> — <span class="highlight-purple">游戏崩溃</span>。检查游戏日志文件（%USERPROFILE%\\AppData\\Local\\Star Citizen\\game.log），根据最后几行错误信息排查具体原因。' },
+                { text: '<span class="highlight-red">无限加载/卡在加载界面</span> — <span class="highlight-purple">服务器排队或连接问题</span>。等待 2-3 分钟后强制退出，切到启动器设置中点击 "Verify" 验证后重进。可尝试切换服务器区域（EU/US/ASIA）。' }
+            ]
         },
         '社区': {
             title: '社区',
@@ -1767,6 +1789,7 @@
         '购买资格包': '购买游戏资格包 一般选最便宜的45USD的包购买 运气好能碰到游戏节日打折40.50USD或者带有LTI永久保险标志的资格包 资格包包含游戏资格和一艘最基础的飞船 可在官网机库里查看',
         '准备启动器': '获取启动器 下载启动器',
         '汉化': '汉化补丁 汉化组官网 新手推荐选择汉化组官网的SC汉化盒子来完成启动器和游戏本体的汉化 网站抽风就直接在系统的微软商店里下载',
+        '常见错误码': '错误码 10001 10002 10004 10005 15003 15004 16000 16001 16003 16008 19000 19001 20005 20006 20007 20010 30000 30001 30002 40000 40001 错误代码 无限加载 卡在加载界面 网络连接超时 令牌验证失败 认证失败 EAC 游戏文件损坏 着色器 显卡 驱动 内存不足 PTU 访问受限 游戏崩溃 加速器 解决方法 常见错误',
         '社区': '了解社区 社区主要涉及三大板块 玩家间自发组织的游戏交易的二级市场 玩家间通过长时间游戏实践总结的约定俗成的一些规则 玩家间自发组织的舰队聊天群频道比赛等交流',
         '官网': '介绍官网三大板块 购买飞船等各类物品 获取游戏相关的资讯数据和社区内容 硬件测试以及发送问题工单客服支持等 管理个人资料数据以及个人机库所拥有的飞船和物品',
         '星际公民': '深入了解游戏本身 观看游戏宣传片和开发者直播 Round the Verse 阅读游戏手册 Starmap Jump Point 杂志 了解游戏核心玩法 飞船战斗 贸易 探索 挖矿等 熟悉游戏内货币 UEC REC 和经济系统 游戏内容庞大 需要时间学习',
