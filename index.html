@@ -511,6 +511,24 @@
             .article-card h2 { font-size: 18px; }
             .article-body { font-size: 15px; }
         }
+
+        /* ===== 全息角色卡 ===== */
+        .holo-card { position: relative; overflow: hidden; }
+        .holo-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(from 0deg at 50% 50%, transparent 0%, rgba(0,212,255,0.03) 25%, transparent 50%, rgba(0,212,255,0.03) 75%, transparent 100%); animation: holo-rotate 20s linear infinite; pointer-events: none; z-index: 0; }
+        @keyframes holo-rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .holo-card > * { position: relative; z-index: 1; }
+        .holo-card::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(0,212,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.02) 1px, transparent 1px); background-size: 24px 24px; pointer-events: none; z-index: 0; }
+        .holo-avatar-ring { position: relative; border-radius: 50%; padding: 2px; background: linear-gradient(135deg, var(--accent-cyan), rgba(76,175,80,0.3)); animation: pulse-ring 2s ease-in-out infinite; }
+        @keyframes pulse-ring { 0%, 100% { box-shadow: 0 0 8px rgba(0,212,255,0.2); } 50% { box-shadow: 0 0 20px rgba(0,212,255,0.4); } }
+        .holo-badge { position: relative; display: inline-block; padding: 4px 14px; border-radius: 12px; background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(0,212,255,0.05)); border: 1px solid rgba(0,212,255,0.2); font-family: var(--font-display); letter-spacing: 1px; }
+        .holo-grid-cell { position: relative; overflow: hidden; }
+        .holo-grid-cell::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 1px; background: linear-gradient(90deg, transparent, rgba(0,212,255,0.1), transparent); pointer-events: none; }
+        .holo-grid-cell::after { content: ''; position: absolute; bottom: 0; right: 0; width: 8px; height: 8px; border-right: 1px solid rgba(0,212,255,0.08); border-bottom: 1px solid rgba(0,212,255,0.08); pointer-events: none; }
+        .holo-corner { position: absolute; width: 14px; height: 14px; pointer-events: none; z-index: 2; }
+        .holo-pulse-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent-green); animation: dot-pulse 1.5s ease-in-out infinite; vertical-align: middle; margin-right: 6px; }
+        @keyframes dot-pulse { 0%, 100% { opacity: 1; box-shadow: 0 0 4px var(--accent-green); } 50% { opacity: 0.4; box-shadow: 0 0 8px var(--accent-green); } }
+        .holo-divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(0,212,255,0.1), rgba(0,212,255,0.15), rgba(0,212,255,0.1), transparent); margin: 12px 0; }
+        .card-3d { transition: transform 0.15s ease-out, box-shadow 0.15s ease-out; will-change: transform; }
     </style>
 </head>
 <body>
@@ -594,6 +612,16 @@
                 </div>
                 <div class="tool-arrow">&#8250;</div>
             </div>
+            <div class="tool-item" data-tool="citizen">
+                <div class="tool-icon">
+                    <svg viewBox="0 0 24 24"><path d="M5.121 17.804A8 8 0 1 1 18.88 6.197" stroke="currentColor" fill="none"/><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" fill="currentColor"/><circle cx="17" cy="5" r="2" fill="#4CAF50"/></svg>
+                </div>
+                <div>
+                    <div class="tool-name">玩家查询</div>
+                    <div class="tool-desc">查询RSI公民档案</div>
+                </div>
+                <div class="tool-arrow">&#8250;</div>
+            </div>
             <div class="tool-item" data-tool="invoice">
                 <div class="tool-icon">
                     <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
@@ -634,6 +662,11 @@
                     <div class="modal-tool-item" data-tool="exchange">
                         <div class="mt-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></div>
                         <div class="mt-info"><div class="mt-name">汇率查询</div><div class="mt-desc">查询中国银行外汇牌价（美元/欧元/日元/港币等）</div></div>
+                        <div class="mt-arrow">&#8250;</div>
+                    </div>
+                    <div class="modal-tool-item" data-tool="citizen">
+                        <div class="mt-icon"><svg viewBox="0 0 24 24"><path d="M5.121 17.804A8 8 0 1 1 18.88 6.197" stroke="currentColor" fill="none"/><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" fill="currentColor"/><circle cx="17" cy="5" r="2" fill="#4CAF50"/></svg></div>
+                        <div class="mt-info"><div class="mt-name">玩家查询</div><div class="mt-desc">输入 Handle 查询 RSI 公民档案信息</div></div>
                         <div class="mt-arrow">&#8250;</div>
                     </div>
                     <div class="modal-tool-item" data-tool="invoice">
@@ -2335,7 +2368,7 @@
             modalOverlay.classList.add('show');
             const modalTitleEl = document.querySelector('#modal-title');
             const modalBodyEl = document.getElementById('modal-body');
-            if (modalTitleEl) modalTitleEl.textContent = tool === 'wbccu' ? 'WBCCU 查询' : tool === 'exchange' ? '汇率查询' : '发票下载器';
+            if (modalTitleEl) modalTitleEl.textContent = tool === 'wbccu' ? 'WBCCU 查询' : tool === 'exchange' ? '汇率查询' : tool === 'invoice' ? '发票下载器' : '玩家查询';
             if (!modalBodyEl) return;
 
             if (tool === 'invoice') {
@@ -2393,6 +2426,56 @@
                 } catch (e) {
                     modalBodyEl.innerHTML = '<div class="tool-error">[错误] ' + e.message + '</div>';
                 }
+            } else if (tool === 'citizen') {
+                // 玩家查询 — 显示输入框
+                modalBodyEl.innerHTML = `
+                    <div style="padding:20px 0;text-align:center;">
+                        <div style="font-size:42px;margin-bottom:12px;">👤</div>
+                        <div style="color:#fff;font-size:18px;font-weight:600;margin-bottom:16px;font-family:var(--font-display);letter-spacing:1px;">RSI 公民档案查询</div>
+                        <div style="display:flex;gap:10px;max-width:420px;margin:0 auto;">
+                            <input type="text" id="citizen-handle" placeholder="输入玩家ID"
+                                style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:12px 16px;border-radius:8px;font-size:15px;outline:none;transition:border-color 0.3s;"
+                                oninput="this.style.borderColor = this.value ? 'rgba(0,212,255,0.3)' : 'rgba(255,255,255,0.1)'"
+                                onkeydown="if(event.key==='Enter') document.getElementById('citizen-search-btn').click()">
+                            <button id="citizen-search-btn" style="background:linear-gradient(135deg,#4CAF50,#00d4ff);color:#fff;border:none;padding:12px 24px;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;white-space:nowrap;"
+                                onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">查询</button>
+                        </div>
+                        <div style="color:rgba(255,255,255,0.3);font-size:12px;margin-top:10px;">不区分大小写，每分钟限制查询6次</div>
+                    </div>
+                    <div id="citizen-result" style="display:none;"></div>
+                `;
+                document.getElementById('citizen-search-btn').addEventListener('click', async () => {
+                    const input = document.getElementById('citizen-handle');
+                    const resultDiv = document.getElementById('citizen-result');
+                    const handle = input.value.trim();
+                    if (!handle) { input.style.borderColor = '#f44336'; input.focus(); return; }
+                    // 频率限制：每分钟6次
+                    const now = Date.now();
+                    if (!window._citizenRateLimit) window._citizenRateLimit = [];
+                    window._citizenRateLimit = window._citizenRateLimit.filter(t => now - t < 60000);
+                    if (window._citizenRateLimit.length >= 6) {
+                        resultDiv.style.display = 'block';
+                        resultDiv.innerHTML = '<div class="tool-error">⏱ 查询过于频繁，请稍后再试（每分钟限制6次）</div>';
+                        return;
+                    }
+                    window._citizenRateLimit.push(now);
+                    input.style.borderColor = 'rgba(0,212,255,0.3)';
+                    resultDiv.style.display = 'block';
+                    resultDiv.innerHTML = '<div class="tool-loading">🔍 正在查询 ' + handle + '…</div>';
+                    try {
+                        if (location.protocol === 'file:') throw new Error('请部署后使用');
+                        const resp = await fetchWithTimeout('/api/citizen?handle=' + encodeURIComponent(handle), {}, 15000);
+                        if (!resp.ok) {
+                            const err = await resp.json().catch(() => ({}));
+                            throw new Error(err.error || ('请求失败: ' + resp.status));
+                        }
+                        const html = await resp.text();
+                        const data = parseCitizenHtml(html, handle);
+                        renderCitizenCard(data, resultDiv);
+                    } catch (e) {
+                        resultDiv.innerHTML = '<div class="tool-error">[错误] ' + e.message + '</div>';
+                    }
+                });
             }
         });
     });
@@ -2415,6 +2498,248 @@
 
     const exchangeCurrencies = ['美元','欧元','日元','港币','英镑','澳大利亚元','加拿大元','韩国元','新台币','澳门元'];
     const exchangeLabels = { '美元':'USD','欧元':'EUR','日元':'JPY','港币':'HKD','英镑':'GBP','澳大利亚元':'AUD','加拿大元':'CAD','韩国元':'KRW','新台币':'TWD','澳门元':'MOP' };
+
+    // ===== 公民查询解析 & 渲染 =====
+    function parseCitizenHtml(html, fallbackHandle) {
+        const data = {
+            name: '', handle: fallbackHandle, rank: '',
+            organization: '', sid: '', orgRank: '',
+            enlisted: '', fluency: '', bio: '', ueeRecord: '',
+            avatarUrl: '', orgLogoUrl: '',
+            profileUrl: 'https://robertsspaceindustries.com/en/citizens/' + encodeURIComponent(fallbackHandle)
+        };
+
+        // 过滤掉非舰队名的通用后缀
+        const nonOrgSuffixes = ['Roberts Space Industries', 'Follow the development of Star Citizen and Squadron 42'];
+
+        // 1. 从 <title> 解析（注意 title 可能跨多行）
+        const tm = html.match(/<title>([\s\S]*?)<\/title>/i);
+        if (tm) {
+            const t = tm[1].replace(/\s+/g, ' ').trim();
+            const parts = t.split(' - ').filter(p => !nonOrgSuffixes.includes(p.trim()));
+            const namePart = parts[0] || '';
+            if (namePart.includes('|')) {
+                const np = namePart.split('|');
+                data.name = np[0]?.trim() || '';
+                data.handle = np[1]?.trim() || fallbackHandle;
+            } else {
+                data.name = namePart.trim();
+            }
+            if (parts.length >= 2) {
+                const sidMatch = parts[1]?.match(/^(\d+)\s*\(([^)]*)\)/);
+                if (sidMatch) {
+                    data.sid = sidMatch[1];
+                    data.orgRank = sidMatch[2];
+                } else {
+                    data.organization = parts[1].trim();
+                    if (parts.length >= 3) {
+                        const sm = parts[2].match(/^(\d+)\s*\(([^)]*)\)/);
+                        if (sm) { data.sid = sm[1]; data.orgRank = sm[2]; }
+                    }
+                }
+            }
+        }
+
+        // 辅助：提取 <span class="label">xxx</span> 后的 <strong class="value">yyy</strong>
+        function extractValue(label, tag) {
+            tag = tag || 'strong';
+            const esc = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const re = new RegExp('<span[^>]*class="label[^"]*"[^>]*>' + esc + '</span>\\s*<' + tag + '[^>]*>([\\s\\S]*?)<\\/' + tag + '>', 'i');
+            const m = html.match(re);
+            return m ? m[1].trim() : '';
+        }
+
+        // 2. 名称 — Profile 区 .info 内第一个 <strong class="value">
+        const pInfo = html.match(/class="info[^>]*">([\s\S]*?)<\/div>\s*<\/div>\s*<\/div>/i);
+        if (pInfo) {
+            const nMatch = pInfo[1].match(/<strong[^>]*class="value"[^>]*>([^<]+)<\/strong>/);
+            if (nMatch) data.name = nMatch[1].trim();
+        }
+
+        // 3. Handle name
+        const hv = extractValue('Handle name');
+        if (hv) data.handle = hv;
+
+        // 4. 军衔 — Profile .info 区 <span class="value">xxx</span>
+        const pInfo2 = html.match(/class="info[^>]*">([\s\S]*?)<\/div>\s*<\/div>\s*<\/div>/i);
+        if (pInfo2) {
+            const rM = pInfo2[1].match(/<span[^>]*class="value"[^>]*>([^<]+)<\/span>/i);
+            if (rM) data.rank = rM[1].trim();
+        }
+
+        // 5. 舰队名
+        const oM = html.match(/Main\s*organization[\s\S]*?<a[^>]*class="value[^"]*"[^>]*>([^<]*)<\/a>/i);
+        if (oM) data.organization = oM[1].trim();
+        // 过滤掉误抓的非舰队文本
+        const junkPatterns = ['Roberts Space Industries', 'Follow the development', 'Star Citizen and Squadron 42'];
+        if (junkPatterns.some(p => data.organization.includes(p))) data.organization = '';
+
+        // 6. SID
+        const sv = extractValue('Spectrum Identification (SID)') || extractValue('Spectrum Identification');
+        if (sv) data.sid = sv;
+
+        // 7. 舰队职位
+        const ov = extractValue('Organization rank');
+        if (ov) data.orgRank = ov;
+
+        // 8. 注册日期
+        const ev = extractValue('Enlisted');
+        if (ev) data.enlisted = ev;
+
+        // 9. 语言
+        const fv = extractValue('Fluency');
+        if (fv) data.fluency = fv;
+
+        // 10. Bio — <div class="entry bio"> 下的 <div class="value">
+        const bM = html.match(/<div[^>]*class="entry\s+bio[^>]*>[\s\S]*?<div[^>]*class="value"[^>]*>([\s\S]*?)<\/div>/i);
+        if (bM) data.bio = bM[1].replace(/<br\s*\/?>/gi, '\n').trim();
+
+        // 11. UEE Citizen Record
+        const uv = extractValue('UEE Citizen Record');
+        if (uv) data.ueeRecord = uv;
+
+        // 12. 头像
+        const thumbSection = html.match(/class="profile[^>]*>[\s\S]*?<div[^>]*class="thumb"[^>]*>([\s\S]*?)<\/div>/i);
+        if (thumbSection) {
+            const imgMatch = thumbSection[1].match(/<img[^>]*src="([^"]+)"[^>]*>/i);
+            if (imgMatch) {
+                const src = imgMatch[1];
+                data.avatarUrl = src.startsWith('http') ? src : 'https://robertsspaceindustries.com' + src;
+            }
+        }
+
+        // 13. 舰队头像
+        const orgSection = html.match(/class="main-org[^>]*>[\s\S]*?<div[^>]*class="thumb"[^>]*>([\s\S]*?)<\/div>/i);
+        if (orgSection) {
+            const imgMatch = orgSection[1].match(/<img[^>]*src="([^"]+)"[^>]*>/i);
+            if (imgMatch) {
+                const src = imgMatch[1];
+                data.orgLogoUrl = src.startsWith('http') ? src : 'https://robertsspaceindustries.com' + src;
+            }
+        }
+
+        return data;
+    }
+
+    function renderCitizenCard(data, container) {
+        const rankColors = {
+            'Grand Admiral':'#FFD700', 'Admiral':'#FF6B35', 'Vice Admiral':'#FF6B35',
+            'Rear Admiral':'#FF6B35', 'Commodore':'#0088CC',
+            'Captain':'#0088CC', 'Commander':'#0088CC',
+            'Lieutenant Commander':'#00AA44', 'Lieutenant':'#00AA44',
+            'Marshal':'#8B5CF6', 'Commander Marshal':'#8B5CF6', 'Deputy Marshal':'#8B5CF6',
+            'General':'#FF4444', 'Colonel':'#FF4444', 'Major':'#FF4444',
+        };
+        const rc = rankColors[data.rank] || 'var(--accent-cyan)';
+        const no = '<span style="color:rgba(255,255,255,0.25);">无</span>';
+        const isCyan = rc === 'var(--accent-cyan)';
+        const hexRc = isCyan ? '#00d4ff' : rc;
+
+        // 头像 — 用全息光环包围
+        var avatarHtml = '<div class="holo-avatar-ring" style="width:60px;height:60px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><div style="width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,' + hexRc + '66,rgba(0,212,255,0.15));display:flex;align-items:center;justify-content:center;font-size:26px;overflow:hidden;">👤</div></div>';
+        if (data.avatarUrl) {
+            avatarHtml = '<div class="holo-avatar-ring" style="width:60px;height:60px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><img src="' + escHtml(data.avatarUrl) + '" style="width:54px;height:54px;border-radius:50%;object-fit:cover;display:block;" onerror="this.outerHTML=\'<div style=\\\'width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;\\\'>👤</div>\'"></div>';
+        }
+
+        // 舰队头像
+        var orgLogoHtml = '';
+        if (data.orgLogoUrl) {
+            orgLogoHtml = '<img src="' + escHtml(data.orgLogoUrl) + '" style="width:22px;height:22px;border-radius:4px;object-fit:contain;vertical-align:middle;margin-right:6px;" onerror="this.style.display=\'none\'">';
+        }
+
+        // 构建网格单元格
+        function cell(label, value) {
+            var v = value || no;
+            return '<div class="holo-grid-cell" style="background:rgba(255,255,255,0.03);border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.05);"><div style="color:rgba(255,255,255,0.55);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;font-family:var(--font-display);margin-bottom:5px;">' + label + '</div><div style="color:#ffffff;font-size:15px;font-weight:600;">' + v + '</div></div>';
+        }
+
+        var bioHtml = '';
+        if (data.bio) {
+            bioHtml = '<div class="holo-grid-cell" style="margin-top:12px;background:rgba(255,255,255,0.03);border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.05);"><div style="color:rgba(255,255,255,0.55);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;font-family:var(--font-display);margin-bottom:5px;">简介</div><div style="color:rgba(255,255,255,0.8);font-size:14px;font-weight:500;line-height:1.6;">' + escHtml(data.bio) + '</div></div>';
+        }
+
+        container.className = '';
+        var cardId = 'holo-card-' + Date.now();
+        container.innerHTML = '<div id="' + cardId + '" class="holo-card card-3d" style="perspective:800px;background:linear-gradient(145deg,rgba(10,14,26,0.85),rgba(15,21,40,0.9));border:1px solid rgba(0,212,255,0.15);border-radius:18px;padding:0;margin-top:12px;box-shadow:0 0 30px rgba(0,212,255,0.04),inset 0 0 30px rgba(0,212,255,0.02);">'
+            // 四角装饰
+            + '<div class="holo-corner" style="top:6px;left:6px;border-top:2px solid rgba(0,212,255,0.2);border-left:2px solid rgba(0,212,255,0.2);border-radius:4px 0 0 0;"></div>'
+            + '<div class="holo-corner" style="top:6px;right:6px;border-top:2px solid rgba(0,212,255,0.2);border-right:2px solid rgba(0,212,255,0.2);border-radius:0 4px 0 0;"></div>'
+            + '<div class="holo-corner" style="bottom:6px;left:6px;border-bottom:2px solid rgba(0,212,255,0.2);border-left:2px solid rgba(0,212,255,0.2);border-radius:0 0 0 4px;"></div>'
+            + '<div class="holo-corner" style="bottom:6px;right:6px;border-bottom:2px solid rgba(0,212,255,0.2);border-right:2px solid rgba(0,212,255,0.2);border-radius:0 0 4px 0;"></div>'
+            // 顶部装饰条
+            + '<div style="height:3px;background:linear-gradient(90deg,transparent,' + hexRc + '44,transparent);border-radius:18px 18px 0 0;"></div>'
+            // 头部
+            + '<div style="display:flex;align-items:center;gap:16px;padding:20px 24px 14px;border-bottom:1px solid rgba(0,212,255,0.06);">'
+                + '<div style="position:relative;flex-shrink:0;">'
+                    + avatarHtml
+                + '</div>'
+                + '<div style="flex:1;min-width:0;">'
+                    + '<div style="display:flex;align-items:center;gap:8px;">'
+                        + '<span style="color:#ffffff;font-size:21px;font-weight:700;font-family:var(--font-display);letter-spacing:0.5px;">' + escHtml(data.name) + '</span>'
+                        + '<span style="color:rgba(0,212,255,0.3);font-size:16px;font-weight:300;font-family:var(--font-display);">//</span>'
+                    + '</div>'
+                    + '<div style="color:rgba(255,255,255,0.35);font-size:12px;margin-top:1px;font-family:var(--font-mono);">@' + escHtml(data.handle) + '  <span style="color:rgba(255,255,255,0.12);">|</span>  <span style="color:rgba(0,212,255,0.3);font-size:10px;">CITIZEN DOSSIER</span></div>'
+                + '</div>'
+                + '<div style="text-align:right;flex-shrink:0;">'
+                    + '<div style="color:rgba(255,255,255,0.35);font-size:10px;text-transform:uppercase;letter-spacing:1px;font-family:var(--font-display);margin-bottom:3px;">头衔</div>'
+                    + '<div class="holo-badge" style="color:' + hexRc + ';font-size:13px;font-weight:600;">' + escHtml(data.rank) + '</div>'
+                + '</div>'
+            + '</div>'
+            // 信息体
+            + '<div style="padding:16px 24px 20px;">'
+                + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">'
+                    + '<span class="holo-pulse-dot"></span>'
+                    + '<span style="color:rgba(255,255,255,0.25);font-size:10px;text-transform:uppercase;letter-spacing:2px;font-family:var(--font-display);">公民档案数据</span>'
+                    + '<div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(0,212,255,0.1),transparent);"></div>'
+                + '</div>'
+                + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'
+                    + cell('舰队', orgLogoHtml + (data.organization ? escHtml(data.organization) : ''))
+                    + cell('SID', data.sid || no)
+                    + cell('舰队职位', data.orgRank || no)
+                    + cell('注册日期', data.enlisted || no)
+                    + cell('语言', data.fluency || no)
+                    + cell('UEE 编号', data.ueeRecord || no)
+                + '</div>'
+                + '<div class="holo-divider"></div>'
+                + bioHtml
+                // 底部链接
+                + '<div style="margin-top:16px;text-align:center;">'
+                    + '<a href="' + escHtml(data.profileUrl) + '" target="_blank" style="display:inline-block;background:rgba(0,212,255,0.06);color:var(--accent-cyan);border:1px solid rgba(0,212,255,0.12);border-radius:8px;padding:8px 22px;font-size:12px;text-decoration:none;font-weight:500;transition:all 0.2s;font-family:var(--font-display);letter-spacing:1px;" onmouseover="this.style.background=\'rgba(0,212,255,0.15)\';this.style.borderColor=\'rgba(0,212,255,0.3)\'" onmouseout="this.style.background=\'rgba(0,212,255,0.06)\';this.style.borderColor=\'rgba(0,212,255,0.12)\'">'
+                        + '◈ 查看 RSI 原始档案 ◈'
+                    + '</a>'
+                + '</div>'
+                + '<div style="color:rgba(255,255,255,0.2);font-size:9px;text-align:center;margin-top:12px;font-family:var(--font-mono);letter-spacing:0.5px;">// DATA SOURCE: ROBERTS SPACE INDUSTRIES //</div>'
+            + '</div>'
+        + '</div>';
+
+        // 3D 悬浮倾斜效果
+        setTimeout(function() {
+            var el = document.getElementById(cardId);
+            if (!el) return;
+            el.addEventListener('mousemove', function(e) {
+                var rect = el.getBoundingClientRect();
+                var x = e.clientX - rect.left;
+                var y = e.clientY - rect.top;
+                var cx = rect.width / 2;
+                var cy = rect.height / 2;
+                var rx = ((y - cy) / cy) * -6;
+                var ry = ((x - cx) / cx) * 6;
+                el.style.transform = 'rotateX(' + rx.toFixed(1) + 'deg) rotateY(' + ry.toFixed(1) + 'deg) translateZ(8px)';
+                el.style.boxShadow = (ry > 0 ? (-ry * 2) : (ry * -2)) + 'px ' + (rx > 0 ? (rx * 2) : (rx * -2)) + 'px 30px rgba(0,212,255,0.06), 0 0 30px rgba(0,212,255,0.04), inset 0 0 30px rgba(0,212,255,0.02)';
+            });
+            el.addEventListener('mouseleave', function() {
+                el.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
+                el.style.boxShadow = '0 0 30px rgba(0,212,255,0.04), inset 0 0 30px rgba(0,212,255,0.02)';
+            });
+        }, 50);
+    }
+
+    function escHtml(str) {
+        if (!str) return '-';
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+    }
 
     function showExchangeRates(rates, resultEl) {
         const ccyList = Object.keys(rates);
