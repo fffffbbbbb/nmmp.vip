@@ -2750,10 +2750,10 @@
         }
         let html = '<div class="exchange-result">';
         html += '<div class="er-title">中国银行外汇牌价</div>';
-        html += '<table class="er-table"><tr><th>货币</th><th>1 货币 → 人民币</th><th>1 人民币 → 货币</th></tr>';
+        html += '<table class="er-table"><tr><th>货币</th><th>1 货币 → 人民币</th><th>人民币 → 1货币</th></tr>';
         for (const ccy of ccyList) {
             const r = rates[ccy];
-            html += '<tr><td>' + ccy + ' (' + (exchangeLabels[ccy]||ccy) + ')</td><td class="er-rate">' + (r.buy/100).toFixed(4) + '</td><td class="er-inverse">' + (100/r.sell).toFixed(4) + '</td></tr>';
+            html += '<tr><td>' + ccy + ' (' + (exchangeLabels[ccy]||ccy) + ')</td><td class="er-rate">' + (r.buy/100).toFixed(4) + '</td><td class="er-inverse">' + (r.sell/100).toFixed(4) + '</td></tr>';
         }
         html += '</table>';
         const firstCcy = ccyList[0];
