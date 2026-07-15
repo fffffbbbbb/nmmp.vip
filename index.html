@@ -189,7 +189,40 @@
         .tree-node-content.search-active { background: rgba(255, 152, 0, 0.2); color: #ffb74d; border-left: 2px solid #FF9800; }
         .tree-node-content .toggle { width: 16px; flex-shrink: 0; text-align: center; color: var(--text-muted); font-size: 10px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .tree-node-content .toggle.expanded { transform: rotate(90deg); }
-        .tree-node-content .node-name { flex: 1; }
+        .tree-node-content .node-name { flex: 1; z-index: 1; position: relative; }
+        
+        /* ===== 树状连接线（仅激活路径） ===== */
+        .tree-node { position: relative; }
+        .tree-node-content { position: relative; }
+        /* 水平 T 型连接杆 */
+        .tree-node-content.active::after,
+        .tree-node-content.active-ancestor::after { content: ''; position: absolute; top: 50%; width: 0; height: 0; border-top: 1.5px solid var(--accent-cyan); opacity: 0.2; pointer-events: none; z-index: 0; left: 8px; width: 8px; }
+        .tree-children .tree-node-content.active::after,
+        .tree-children .tree-node-content.active-ancestor::after { left: 18px; width: 10px; }
+        .tree-children .tree-children .tree-node-content.active::after,
+        .tree-children .tree-children .tree-node-content.active-ancestor::after { left: 28px; width: 10px; }
+        .tree-children .tree-children .tree-children .tree-node-content.active::after,
+        .tree-children .tree-children .tree-children .tree-node-content.active-ancestor::after { left: 38px; width: 10px; }
+        .tree-children .tree-children .tree-children .tree-children .tree-node-content.active::after,
+        .tree-children .tree-children .tree-children .tree-children .tree-node-content.active-ancestor::after { left: 48px; width: 10px; }
+        .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node-content.active::after,
+        .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node-content.active-ancestor::after { left: 58px; width: 10px; }
+        /* 竖向连接杆 */
+        .tree-node:has(> .tree-node-content.active)::before,
+        .tree-node:has(> .tree-node-content.active-ancestor)::before { content: ''; position: absolute; top: 0; bottom: 0; width: 0; border-left: 1.5px solid var(--accent-cyan); opacity: 0.2; pointer-events: none; z-index: 0; left: 16px; }
+        .tree-children .tree-node:has(> .tree-node-content.active)::before,
+        .tree-children .tree-node:has(> .tree-node-content.active-ancestor)::before { left: 26px; }
+        .tree-children .tree-children .tree-node:has(> .tree-node-content.active)::before,
+        .tree-children .tree-children .tree-node:has(> .tree-node-content.active-ancestor)::before { left: 36px; }
+        .tree-children .tree-children .tree-children .tree-node:has(> .tree-node-content.active)::before,
+        .tree-children .tree-children .tree-children .tree-node:has(> .tree-node-content.active-ancestor)::before { left: 46px; }
+        .tree-children .tree-children .tree-children .tree-children .tree-node:has(> .tree-node-content.active)::before,
+        .tree-children .tree-children .tree-children .tree-children .tree-node:has(> .tree-node-content.active-ancestor)::before { left: 56px; }
+        .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node:has(> .tree-node-content.active)::before,
+        .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node:has(> .tree-node-content.active-ancestor)::before { left: 66px; }
+        /* 最后一个子节点：L 形（只画上半截竖线，仅限叶子节点 active） */
+        .tree-node:last-child:has(> .tree-node-content.active)::before { bottom: auto; height: 50%; }
+        .tree-node:last-child:has(> .tree-node-content.active-ancestor)::before { bottom: 0; }
         
         .tree-children { max-height: 0; overflow: hidden; transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
         .tree-children.open { max-height: 2000px; }
@@ -604,7 +637,7 @@
             </div>
             <div class="tool-item" data-tool="exchange">
                 <div class="tool-icon">
-                    <svg viewBox="0 0 24 24"><path d="M5.121 17.804A8 8 0 1 1 18.88 6.197" stroke="currentColor" fill="none"/><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" fill="currentColor"/><circle cx="17" cy="5" r="2" fill="#4CAF50"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
                 </div>
                 <div>
                     <div class="tool-name">汇率查询</div>
@@ -614,7 +647,7 @@
             </div>
             <div class="tool-item" data-tool="citizen">
                 <div class="tool-icon">
-                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M5.121 17.804A8 8 0 1 1 18.88 6.197" stroke="currentColor" fill="none"/><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" fill="currentColor"/><circle cx="17" cy="5" r="2" fill="#4CAF50"/></svg>
                 </div>
                 <div>
                     <div class="tool-name">玩家查询</div>
@@ -660,12 +693,12 @@
                         <div class="mt-arrow">&#8250;</div>
                     </div>
                     <div class="modal-tool-item" data-tool="exchange">
-                        <div class="mt-icon"><svg viewBox="0 0 24 24"><path d="M5.121 17.804A8 8 0 1 1 18.88 6.197" stroke="currentColor" fill="none"/><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" fill="currentColor"/><circle cx="17" cy="5" r="2" fill="#4CAF50"/></svg></div>
+                        <div class="mt-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></div>
                         <div class="mt-info"><div class="mt-name">汇率查询</div><div class="mt-desc">查询中国银行外汇牌价（美元/欧元/日元/港币等）</div></div>
                         <div class="mt-arrow">&#8250;</div>
                     </div>
                     <div class="modal-tool-item" data-tool="citizen">
-                        <div class="mt-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg></div>
+                        <div class="mt-icon"><svg viewBox="0 0 24 24"><path d="M5.121 17.804A8 8 0 1 1 18.88 6.197" stroke="currentColor" fill="none"/><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" fill="currentColor"/><circle cx="17" cy="5" r="2" fill="#4CAF50"/></svg></div>
                         <div class="mt-info"><div class="mt-name">玩家查询</div><div class="mt-desc">输入 Handle 查询 RSI 公民档案信息</div></div>
                         <div class="mt-arrow">&#8250;</div>
                     </div>
