@@ -23,7 +23,7 @@ export async function onRequest(context) {
     origin: url.origin,
     // 按 handle 分别缓存（RSI 的 handle 不区分大小写，统一转小写做键）
     name: 'citizen/' + handle.toLowerCase(),
-    freshTtl: 300,       // 5 分钟
+    freshTtl: 600,       // 10 分钟（档案变化很慢）
     staleTtl: 86400,     // 兜底 1 天
     failMessage: 'RSI 官网暂时拒绝访问（已自动重试多次），请稍后再试',
     loader: async () => {
@@ -32,7 +32,7 @@ export async function onRequest(context) {
           'Accept': 'text/html,application/xhtml+xml',
           'User-Agent': BROWSER_UA,
         },
-      }, { attempts: 5 });
+      }, { attempts: 8 });
 
       if (resp.ok) return resp;
 

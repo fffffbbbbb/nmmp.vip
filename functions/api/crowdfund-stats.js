@@ -27,6 +27,6 @@ export async function onRequest(context) {
         'User-Agent': BROWSER_UA,
       },
       body: RSI_BODY,
-    }, { attempts: 5 }),
+    }, { attempts: 6 }),
   });
 }

@@ -41,7 +41,7 @@ export async function onRequest(context) {
           'Accept': 'application/json',
           'User-Agent': BROWSER_UA,
         },
-      }, { attempts: 4 });
+      }, { attempts: 6 });
 
       if (!tokenResp.ok) return tokenResp;   // 交给 serveWithCache 走兜底逻辑
 
@@ -67,7 +67,7 @@ export async function onRequest(context) {
           variables: { fromFilters: [], toFilters: [] },
           query: GRAPHQL_QUERY,
         }]),
-      }, { attempts: 4 });
+      }, { attempts: 6 });
     },
   });
 }

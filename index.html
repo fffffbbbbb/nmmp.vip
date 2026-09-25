@@ -1753,6 +1753,25 @@
         return Number(count).toLocaleString();
     }
 
+    // 资金/人次的本地兜底缓存：接口暂时不可用时显示上次成功获取的数据，避免出现「获取失败」
+    const FUNDING_CACHE_KEY = 'sc_funding_cache';
+
+    function writeFundingCache(fundingText, backersText) {
+        try {
+            localStorage.setItem(FUNDING_CACHE_KEY, JSON.stringify({ funding: fundingText, backers: backersText, ts: Date.now() }));
+        } catch (e) {}
+    }
+
+    function readFundingCache() {
+        try {
+            const raw = localStorage.getItem(FUNDING_CACHE_KEY);
+            if (!raw) return null;
+            const data = JSON.parse(raw);
+            if (!data || !data.funding || !data.backers) return null;
+            return data;
+        } catch (e) { return null; }
+    }
+
     async function updateFundingStats() {
         const fundingEl = document.getElementById('funding-amount');
         const backersEl = document.getElementById('backers-count');
@@ -1766,14 +1785,25 @@
             if (r.ok) {
                 const j = await r.json();
                 if (j?.data) {
-                    if (fundingEl) fundingEl.textContent = formatFundingAmount(j.data.funds / 100);
-                    if (backersEl) backersEl.textContent = formatBackersCount(j.data.fans);
+                    const fundingText = formatFundingAmount(j.data.funds / 100);
+                    const backersText = formatBackersCount(j.data.fans);
+                    if (fundingEl) fundingEl.textContent = fundingText;
+                    if (backersEl) backersEl.textContent = backersText;
+                    writeFundingCache(fundingText, backersText);
                     return;
                 }
             }
             throw new Error();
         } catch(e) {
             console.error('Funding stats error:', e);
+            // 兜底 1：接口端回退的旧数据（服务端缓存 7 天）
+            // 兜底 2：本机上次成功获取的值，避免显示「获取失败」
+            const cached = readFundingCache();
+            if (cached) {
+                if (fundingEl) { fundingEl.textContent = cached.funding; fundingEl.title = '接口暂时不可用，显示上次获取的数据'; }
+                if (backersEl) { backersEl.textContent = cached.backers; backersEl.title = '接口暂时不可用，显示上次获取的数据'; }
+                return;
+            }
             if (fundingEl && fundingEl.textContent === '加载中...') fundingEl.textContent = '获取失败';
             if (backersEl && backersEl.textContent === '加载中...') backersEl.textContent = '获取失败';
         }
