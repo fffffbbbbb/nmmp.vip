@@ -2419,7 +2419,7 @@
                 if (!rl.ok) { modalBodyEl.innerHTML = '<div class="tool-error">频率限制，请 ' + rl.waitSec + ' 秒后再试</div>'; return; }
                 try {
                     const proxyResp = await fetch('/api/wbccu', { method: 'POST' });
-                    if (!proxyResp.ok) throw new Error('无法连接 RSI 服务器');
+                    if (!proxyResp.ok) throw new Error(await readApiError(proxyResp, 'RSI 服务器暂时不可用'));
                     const pd = await proxyResp.json();
                     if (pd?.error) throw new Error(pd.error);
                     let shipsData = pd?.[0]?.data?.to?.ships || pd?.data?.to?.ships || pd?.ships;
@@ -2517,6 +2517,15 @@
 
     modalCloseBtn.addEventListener('click', () => modalOverlay.classList.remove('show'));
     modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) modalOverlay.classList.remove('show'); });
+
+    // 读取函数端返回的中文错误信息（配合 Cloudflare 函数的重试 / 缓存兜底改造）
+    async function readApiError(resp, fallback) {
+        try {
+            const data = await resp.json();
+            if (data && data.error) return data.error;
+        } catch (e) {}
+        return fallback + '（HTTP ' + resp.status + '）';
+    }
 
     // WBCCU rate limit
     const wbccuRateLimit = { timestamps: [], max: 10, windowMs: 60000 };
@@ -2903,7 +2912,7 @@
         if (!rl.ok) { modalBody.innerHTML = '<div class="tool-error">频率限制，请 ' + rl.waitSec + ' 秒后再试</div>'; return; }
         try {
             const proxyResp = await fetch('/api/wbccu', { method: 'POST' });
-            if (!proxyResp.ok) throw new Error('无法连接 RSI 服务器');
+            if (!proxyResp.ok) throw new Error(await readApiError(proxyResp, 'RSI 服务器暂时不可用'));
             const pd = await proxyResp.json();
             if (pd?.error) throw new Error(pd.error);
             let shipsData = pd?.[0]?.data?.to?.ships || pd?.data?.to?.ships || pd?.ships;

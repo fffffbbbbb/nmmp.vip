@@ -1,40 +1,31 @@
-// Cloudflare Pages Function — 募集资金统计数据（官方 RSI API）
+// Cloudflare Pages Function — 募集资金 / 玩家数统计（官方 RSI API）
+//
+// 稳定性处理（见 _rsi.js）：RSI 主域会对来自 Cloudflare 机房出口 IP 的请求概率性返回 403，
+// 这里用「最多 5 次重试 + 30 分钟边缘缓存 + 7 天兜底数据」保证前端不再出现「获取失败」。
+
+import { BROWSER_UA, corsPreflight, fetchWithRetry, serveWithCache } from './_rsi.js';
+
+const RSI_URL = 'https://robertsspaceindustries.com/api/stats/getCrowdfundStats';
+const RSI_BODY = JSON.stringify({ chart: 'day', fans: true, funds: true, alpha_slots: true, fleet: true });
 
 export async function onRequest(context) {
   const { request } = context;
 
-  if (request.method === 'OPTIONS') {
-    return new Response(null, {
-      headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' },
-    });
-  }
+  if (request.method === 'OPTIONS') return corsPreflight('POST, OPTIONS');
 
-  try {
-    const body = JSON.stringify({
-      chart: 'day',
-      fans: true,
-      funds: true,
-      alpha_slots: true,
-      fleet: true,
-    });
-
-    const resp = await fetch('https://robertsspaceindustries.com/api/stats/getCrowdfundStats', {
+  return serveWithCache({
+    name: 'crowdfund-stats',
+    freshTtl: 1800,      // 30 分钟内直接命中缓存，不再抓 RSI
+    staleTtl: 604800,    // 抓取彻底失败时，最多回退到 7 天前的数据
+    failMessage: 'RSI 服务器暂时拒绝访问（已自动重试多次），请稍后再试',
+    loader: () => fetchWithRetry(RSI_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: body,
-    });
-
-    const data = await resp.text();
-
-    return new Response(data, {
-      status: resp.status,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
+        'Accept': 'application/json',
+        'User-Agent': BROWSER_UA,
       },
-    });
-
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
-  }
+      body: RSI_BODY,
+    }, { attempts: 5 }),
+  });
 }
