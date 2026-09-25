@@ -14,6 +14,7 @@ export async function onRequest(context) {
   if (request.method === 'OPTIONS') return corsPreflight('POST, OPTIONS');
 
   return serveWithCache({
+    origin: new URL(request.url).origin,
     name: 'crowdfund-stats',
     freshTtl: 1800,      // 30 分钟内直接命中缓存，不再抓 RSI
     staleTtl: 604800,    // 抓取彻底失败时，最多回退到 7 天前的数据

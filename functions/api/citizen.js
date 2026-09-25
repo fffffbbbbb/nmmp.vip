@@ -20,6 +20,7 @@ export async function onRequest(context) {
   const profileUrl = `https://robertsspaceindustries.com/en/citizens/${encodeURIComponent(handle)}`;
 
   return serveWithCache({
+    origin: url.origin,
     // 按 handle 分别缓存（RSI 的 handle 不区分大小写，统一转小写做键）
     name: 'citizen/' + handle.toLowerCase(),
     freshTtl: 300,       // 5 分钟

@@ -27,6 +27,7 @@ export async function onRequest(context) {
   }
 
   return serveWithCache({
+    origin: new URL(request.url).origin,
     name: 'wbccu',
     freshTtl: 900,       // 15 分钟缓存（WBCCU 只在特卖期间变化）
     staleTtl: 604800,    // 兜底 7 天

@@ -9,11 +9,12 @@
 //     2) 短缓存         —— 成功结果进 Cache API（边缘缓存），大幅减少真实抓取次数
 //     3) 长期兜底       —— 另存一份长期备份，全部重试失败时回退旧数据，前端不再报错
 //
-// 依赖：只用 Pages Functions 自带的 Cache API（caches.default），无需 KV / Cron。
+// 重要：Cache API 的键必须使用本站自己的域名（同 zone），否则 put/match 会静默失效。
+//       所以缓存键统一形如 https://<你的域名>/api/__rsi-cache/<name>。
 
 export const BROWSER_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
 
-const CACHE_ORIGIN = 'https://rsi-cache.internal';
+const CACHE_PATH = '/api/__rsi-cache/';
 const JSON_TYPE = 'application/json; charset=utf-8';
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -51,22 +52,22 @@ export async function fetchWithRetry(url, init = {}, options = {}) {
   throw lastError || new Error('网络请求失败');
 }
 
-function cacheRequest(name) {
-  return new Request(CACHE_ORIGIN + '/' + encodeURIComponent(name), { method: 'GET' });
+function cacheRequest(origin, name) {
+  return new Request(origin + CACHE_PATH + encodeURIComponent(name), { method: 'GET' });
 }
 
-export async function cacheRead(name) {
+export async function cacheRead(origin, name) {
   try {
-    const hit = await caches.default.match(cacheRequest(name));
+    const hit = await caches.default.match(cacheRequest(origin, name));
     return hit || null;
   } catch (error) {
     return null;
   }
 }
 
-async function cacheWrite(name, body, ttl, contentType) {
+async function cacheWrite(origin, name, body, ttl, contentType) {
   try {
-    await caches.default.put(cacheRequest(name), new Response(body, {
+    await caches.default.put(cacheRequest(origin, name), new Response(body, {
       status: 200,
       headers: {
         'Content-Type': contentType,
@@ -74,8 +75,10 @@ async function cacheWrite(name, body, ttl, contentType) {
         'Access-Control-Allow-Origin': '*',
       },
     }));
+    return true;
   } catch (error) {
     // 缓存写入失败不影响本次正常返回
+    return false;
   }
 }
 
@@ -100,7 +103,10 @@ export function corsPreflight(methods) {
  * 统一入口：先读短缓存 → 未命中则抓取（loader 内部请用 fetchWithRetry）
  * → 成功写「短缓存 + 长期备份」；彻底失败则回退长期备份，仍无数据才返回中文错误。
  *
+ * 响应头 X-Rsi-Cache 用于自检：hit=命中短缓存 / miss=真实抓取 / stale=回退旧数据
+ *
  * @param {object}   options
+ * @param {string}   options.origin      本站 origin（缓存键必须同 zone）
  * @param {string}   options.name        缓存键名（公民查询请带上 handle）
  * @param {number}   options.freshTtl    短缓存秒数
  * @param {number}   options.staleTtl    长期备份秒数
@@ -109,6 +115,7 @@ export function corsPreflight(methods) {
  */
 export async function serveWithCache(options) {
   const {
+    origin,
     name,
     freshTtl = 900,
     staleTtl = 604800,
@@ -116,8 +123,19 @@ export async function serveWithCache(options) {
     failMessage = 'RSI 服务器暂时拒绝访问（已自动重试），请稍后再试',
   } = options;
 
-  const fresh = await cacheRead(name);
-  if (fresh) return fresh;
+  const fresh = await cacheRead(origin, name);
+  if (fresh) {
+    const body = await fresh.arrayBuffer();
+    return new Response(body, {
+      status: 200,
+      headers: {
+        'Content-Type': fresh.headers.get('Content-Type') || JSON_TYPE,
+        'Cache-Control': 'public, max-age=' + freshTtl,
+        'X-Rsi-Cache': 'hit',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  }
 
   let response = null;
   let thrown = null;
@@ -130,13 +148,14 @@ export async function serveWithCache(options) {
   if (response && response.ok) {
     const contentType = response.headers.get('Content-Type') || JSON_TYPE;
     const body = await response.arrayBuffer();
-    await cacheWrite(name, body, freshTtl, contentType);
-    await cacheWrite(name + '|backup', body, staleTtl, contentType);
+    await cacheWrite(origin, name, body, freshTtl, contentType);
+    await cacheWrite(origin, name + '|backup', body, staleTtl, contentType);
     return new Response(body, {
       status: 200,
       headers: {
         'Content-Type': contentType,
         'Cache-Control': 'public, max-age=' + freshTtl,
+        'X-Rsi-Cache': 'miss',
         'Access-Control-Allow-Origin': '*',
       },
     });
@@ -146,7 +165,7 @@ export async function serveWithCache(options) {
   const shouldFallback = thrown !== null || isRetryableStatus(status);
 
   if (shouldFallback) {
-    const backup = await cacheRead(name + '|backup');
+    const backup = await cacheRead(origin, name + '|backup');
     if (backup) {
       const contentType = backup.headers.get('Content-Type') || JSON_TYPE;
       const body = await backup.arrayBuffer();
@@ -155,6 +174,7 @@ export async function serveWithCache(options) {
         headers: {
           'Content-Type': contentType,
           'Cache-Control': 'no-store',
+          'X-Rsi-Cache': 'stale',
           'X-Data-Stale': '1',
           'Access-Control-Allow-Origin': '*',
         },
