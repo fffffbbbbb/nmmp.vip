@@ -929,9 +929,11 @@
     <!-- ===== FLOATING TOOLTIP ===== -->
     <div id="floating-tip"></div>
 
-    <!-- 教学模拟播放器（场景模板 + 时间轴 / 播放引擎） -->
-    <script defer src="sims.js"></script>
-    <script defer src="sim-player.js"></script>
+    <!-- 教学模拟播放器（场景模板 + 时间轴 / 播放引擎）
+         注意：这两个文件的浏览器缓存是 4 小时，改完它们后请把下面的 ?v=N 数字 +1，
+         否则访客会在最长 4 小时内继续用到旧版。 -->
+    <script defer src="sims.js?v=2"></script>
+    <script defer src="sim-player.js?v=2"></script>
 
     <script>
     // =====================================================================
