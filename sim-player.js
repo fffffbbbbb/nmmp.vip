@@ -43,9 +43,14 @@
     this.bind();
     this.watch();
     this.goto(0, { autoplay: false });
-    // 兜底：某些环境（系统开启"减少动画效果"、容器测量异常、窗口很扁）下
-    // IntersectionObserver 可能不触发或比例不足，这里主动检查一次并开始播放
-    var self = this;
+    // 看门狗：首屏加载过程中可能发生布局位移，导致 IntersectionObserver 判定"不可见"而暂停。
+    // 前 ~21 秒内每隔 1.5 秒检查一次：只要确实在视口里且没在播，就主动启动。
+    var ticks = 0;
+    var timer = setInterval(function () {
+      ticks++;
+      self.kick();
+      if (ticks >= 14) clearInterval(timer);
+    }, 1500);
     setTimeout(function () { self.kick(); }, 1200);
   }
 
@@ -57,7 +62,7 @@
     var vh = window.innerHeight || document.documentElement.clientHeight;
     if (!r.height || r.bottom <= 0 || r.top >= vh) return;
     var shown = (Math.min(r.bottom, vh) - Math.max(r.top, 0)) / r.height;
-    if (shown >= 0.08) {
+    if (shown >= 0.03) {
       this.visible = true;
       this.playing = true;
       this.scheduleNext();
@@ -170,8 +175,10 @@
     if ('IntersectionObserver' in window) {
       this.io = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
-          self.visible = entry.isIntersecting;
-          if (self.visible) {
+          // 判定放宽：只要还有 3% 露在视口里就算可见（避免布局位移瞬间把播放判成暂停）
+          var shown = entry.isIntersecting && entry.intersectionRatio >= 0.03;
+          self.visible = shown;
+          if (shown) {
             self.reposition();
             // 可见就继续播（除非：关闭了自动、用户手动暂停、或已经播到结尾）
             if (self.auto && !self.userPaused && self.index < self.steps.length - 1) {
@@ -186,7 +193,7 @@
             self.updatePlayButton();
           }
         });
-      }, { threshold: 0.12 });
+      }, { threshold: [0, 0.03, 0.3] });
       this.io.observe(this.window);
     } else {
       this.visible = true;
