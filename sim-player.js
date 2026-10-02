@@ -371,7 +371,7 @@
             if (token !== self.token) return;
             box.checked = true;
             if (wrap) wrap.classList.add('on');
-          }, i * 520);
+          }, i * 380);
         }, this);
         break;
 
@@ -396,7 +396,7 @@
         var codeEl = q('#sim-mail-code', this.stage);
         if (!codeEl) return;
         if (instant) { codeEl.textContent = this.code; codeEl.classList.add('flash'); }
-        else this.typeText(codeEl, this.code, token, 130, true);
+        else this.typeText(codeEl, this.code, token, 90, true);
         break;
 
       case 'arrow':
@@ -425,7 +425,7 @@
       }
       if (isText) node.textContent += chars[i]; else node.value += chars[i];
       i++;
-      self.timerTyping = setTimeout(tick, speed || 55);
+      self.timerTyping = setTimeout(tick, speed || 42);
     }
     tick();
   };
@@ -519,12 +519,12 @@
     head.style.transition = 'none';
     head.style.opacity = '0';
     requestAnimationFrame(function () {
-      path.style.transition = 'stroke-dashoffset .9s ease-out';
+      path.style.transition = 'stroke-dashoffset .68s ease-out';
       path.style.strokeDashoffset = '0';
       setTimeout(function () {
         head.style.transition = 'opacity .25s';
         head.style.opacity = '1';
-      }, 820);
+      }, 620);
     });
   };
 

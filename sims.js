@@ -6,6 +6,7 @@
 //      场景 B = 邮箱验证 + 邮件预览同屏（对应原图 注册账号2.avif）
 //   3. 时间轴里每一步的 target 都是场景内的 CSS 选择器，由 sim-player.js 负责高亮与定位
 //   4. {code} 占位符在播放时替换为本次随机生成的验证码
+//   5. 全流程约 31 秒；提示词已按快节奏精简，详细说明保留在文章底部的红色警示中
 
 (function () {
   'use strict';
@@ -117,63 +118,63 @@
     },
     steps: [
       { scene: 'register', label: '进入注册页',
-        hint: '这是账号注册页（模拟演示，非官方网站）', duration: 2400 },
+        hint: '账号注册页（模拟演示，非官方网站）', duration: 1400 },
 
       { scene: 'register', label: '帐户名称', target: '#sim-username',
-        hint: '① 帐户名称：你唯一的公开昵称，注册后想改名要花钱，想好再填',
-        duration: 4000, action: { type: 'type', target: '#sim-username', text: 'NovaPilot' } },
+        hint: '① 帐户名称：注册后改名要花钱，想好再填',
+        duration: 2000, action: { type: 'type', target: '#sim-username', text: 'NovaPilot' } },
 
       { scene: 'register', label: '电子邮件', target: '#sim-email',
-        hint: '② 电子邮件：推荐 Gmail / Outlook；别用 163 等国内邮箱，容易被撞库洗号，且必须是本人邮箱',
-        duration: 5200, action: { type: 'type', target: '#sim-email', text: 'your.name@gmail.com' } },
+        hint: '② 电子邮件：推荐 Gmail / Outlook，别用 163，必须是本人邮箱',
+        duration: 2800, action: { type: 'type', target: '#sim-email', text: 'your.name@gmail.com' } },
 
       { scene: 'register', label: '密码', target: '#sim-password',
-        hint: '③ 密码：建议字母＋数字＋符号组合，别和其他网站用同一个',
-        duration: 3600, action: { type: 'type', target: '#sim-password', text: '••••••••••' } },
+        hint: '③ 密码：字母＋数字＋符号',
+        duration: 1800, action: { type: 'type', target: '#sim-password', text: '••••••••••' } },
 
       { scene: 'register', label: '出生日期', target: '#sim-birthday',
-        hint: '④ 出生日期：必须年满 13 岁才能注册',
-        duration: 3600, action: { type: 'type', target: '#sim-birthday', text: '2000-01-01' } },
+        hint: '④ 必须年满 13 岁',
+        duration: 1800, action: { type: 'type', target: '#sim-birthday', text: '2000-01-01' } },
 
       { scene: 'register', label: '勾选条款', target: '#sim-checks',
-        hint: '⑤ 邮件推送可以取消；服务条款必须勾选，否则无法注册',
-        duration: 4200, action: { type: 'check', targets: ['#sim-check-news', '#sim-check-terms'] } },
+        hint: '⑤ 服务条款必须勾选',
+        duration: 2000, action: { type: 'check', targets: ['#sim-check-news', '#sim-check-terms'] } },
 
       { scene: 'register', label: '立即注册', target: '#sim-submit',
-        hint: '⑥ 输入完整信息后点击「立即入伍」',
-        duration: 4200, action: { type: 'press', target: '#sim-submit', loading: true } },
+        hint: '⑥ 填完后点「立即入伍」',
+        duration: 2200, action: { type: 'press', target: '#sim-submit', loading: true } },
 
       { scene: 'register', label: '跳转验证',
-        hint: '提交注册后，官网会自动跳到邮箱验证步骤…',
-        duration: 1900, action: { type: 'scene', to: 'verify' } },
+        hint: '提交后自动跳到邮箱验证…',
+        duration: 1400, action: { type: 'scene', to: 'verify' } },
 
       { scene: 'verify', label: '验证邮件', target: '#sim-verify-panel',
-        hint: '注册完成后自动跳到这一步：验证您的电子邮件', duration: 3000 },
+        hint: '注册完成后会跳到这一步', duration: 1800 },
 
       { scene: 'verify', label: '邮件到达', target: '#sim-mail-card',
-        hint: '你注册用的邮箱会收到一封激活邮件', duration: 3200, action: { type: 'email' } },
+        hint: '你的邮箱收到一封激活邮件', duration: 1800, action: { type: 'email' } },
 
       { scene: 'verify', label: '邮件主题', target: '#sim-mail-subject',
-        hint: '邮件主题：Account activation', duration: 2600 },
+        hint: '主题：Account activation', duration: 1500 },
 
       { scene: 'verify', label: '验证码', target: '#sim-mail-code',
-        hint: '找到邮件里最新的那个验证码（每次都不一样）',
-        duration: 3600, action: { type: 'code' } },
+        hint: '找到最新的那个验证码',
+        duration: 1900, action: { type: 'code' } },
 
       { scene: 'verify', label: '一分钟一刷', target: '#sim-code-input',
-        hint: '验证码一分钟一刷，旧码会失效，一定复制最新的那个',
-        duration: 3400, action: { type: 'arrow' } },
+        hint: '验证码一分钟一刷，旧码会失效',
+        duration: 2200, action: { type: 'arrow' } },
 
       { scene: 'verify', label: '填入验证码', target: '#sim-code-input',
-        hint: '把最新验证码填到这里',
-        duration: 3200, action: { type: 'type', target: '#sim-code-input', text: '{code}' } },
+        hint: '把验证码填到这里',
+        duration: 1800, action: { type: 'type', target: '#sim-code-input', text: '{code}' } },
 
       { scene: 'verify', label: '点击验证', target: '#sim-verify-btn',
-        hint: '点击「验证电子邮件」',
-        duration: 3000, action: { type: 'press', target: '#sim-verify-btn', loading: true } },
+        hint: '点「验证电子邮件」',
+        duration: 1800, action: { type: 'press', target: '#sim-verify-btn', loading: true } },
 
       { scene: 'verify', label: '注册成功', target: '#sim-verify-panel',
-        hint: '验证完成才算注册成功', duration: 4200, action: { type: 'success' } },
+        hint: '验证完成才算注册成功', duration: 2600, action: { type: 'success' } },
 
       { scene: 'verify', label: '完成',
         hint: null, duration: 0, action: { type: 'finish' } }
