@@ -1,20 +1,43 @@
 // 「注册账号」教学模拟 —— 场景模板 + 时间轴脚本
 //
 // 说明：
-//   1. 品牌已中性化（Nova Star Interactive / novastar.example），仅用于教学演示，非官方网站
+//   1. 页面按官网原貌还原（RSI 标识 / 域名 / 邮件主题），顶部有醒目的「非官方网站」提示条
 //   2. 场景 A = 注册表单（对应原图 注册账号1.avif）
 //      场景 B = 邮箱验证 + 邮件预览同屏（对应原图 注册账号2.avif）
 //   3. 时间轴里每一步的 target 都是场景内的 CSS 选择器，由 sim-player.js 负责高亮与定位
 //   4. {code} 占位符在播放时替换为本次随机生成的验证码
-//   5. 全流程约 31 秒；提示词已按快节奏精简，详细说明保留在文章底部的红色警示中
+//   5. 全流程约 31 秒；提示词为短句，详细说明保留在文章底部的红色警示中
 
 (function () {
   'use strict';
 
+  // RSI 风格标识：白色斜体 RSI + 三道橙色斜条
   var LOGO =
-    '<svg class="sim-logo" viewBox="0 0 48 48" aria-hidden="true">' +
-    '<path d="M24 3.5 L42.5 14 L42.5 34 L24 44.5 L5.5 34 L5.5 14 Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>' +
-    '<path d="M24 12 L27.6 20.4 L36 24 L27.6 27.6 L24 36 L20.4 27.6 L12 24 L20.4 20.4 Z" fill="currentColor"/>' +
+    '<svg class="sim-logo" viewBox="0 0 132 44" aria-hidden="true">' +
+    '<text x="0" y="35" font-family="Arial Black, Arial, sans-serif" font-size="36" font-style="italic" ' +
+      'font-weight="900" fill="#ffffff" letter-spacing="0.5">RSI</text>' +
+    '<g fill="#f0a91c">' +
+      '<rect x="86" y="4" width="34" height="6" transform="skewX(-20)"/>' +
+      '<rect x="82" y="18" width="38" height="6" transform="skewX(-20)"/>' +
+      '<rect x="78" y="32" width="42" height="6" transform="skewX(-20)"/>' +
+    '</g>' +
+    '<text x="122" y="12" font-family="Arial, sans-serif" font-size="10" fill="#c9d6e4">&#174;</text>' +
+    '</svg>';
+
+  // Google 四色 G
+  var GOOGLE_ICON =
+    '<svg class="sim-oauth-svg" viewBox="0 0 24 24" aria-hidden="true">' +
+    '<path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/>' +
+    '<path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"/>' +
+    '<path fill="#FBBC05" d="M5.27 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.98-3.09z"/>' +
+    '<path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.98 3.09C6.22 6.86 8.87 4.75 12 4.75z"/>' +
+    '</svg>';
+
+  // Twitch 紫色图标
+  var TWITCH_ICON =
+    '<svg class="sim-oauth-svg" viewBox="0 0 24 24" aria-hidden="true">' +
+    '<path fill="#9146FF" d="M2.15 0 .75 3.72v16.5h5.8V24h3.5l3.15-3.78h4.9L24 14.4V0H2.15zm19.6 13.2-3.15 3.15h-5.6L10.9 19.5v-3.15H5.25V2.25h16.5V13.2z"/>' +
+    '<path fill="#fff" d="M17.3 5.9h-1.8v6h1.8v-6zm-4.9 0H10.6v6h1.8v-6z"/>' +
     '</svg>';
 
   function sceneRegister() {
@@ -22,13 +45,13 @@
       '<div class="sim-scene" data-scene="register">' +
         '<div class="sim-stars" aria-hidden="true"></div>' +
         '<div class="sim-reg-wrap" id="sim-reg-wrap">' +
-          '<div class="sim-brand">' + LOGO + '<span class="sim-brand-name">NOVA STAR</span></div>' +
+          '<div class="sim-brand">' + LOGO + '</div>' +
           '<h3 class="sim-h1">开始你的冒险吧！</h3>' +
           '<p class="sim-sub">您的第一次宇宙之旅正在等待着您。</p>' +
           '<p class="sim-sub2">已有账户？<a class="sim-link">立即登录</a>。</p>' +
           '<div class="sim-oauth">' +
-            '<button type="button" class="sim-oauth-btn" id="sim-oauth-a"><span class="sim-oauth-ic">◈</span><span>第三方账号登录</span></button>' +
-            '<button type="button" class="sim-oauth-btn" id="sim-oauth-b"><span class="sim-oauth-ic">◉</span><span>社区账号登录</span></button>' +
+            '<button type="button" class="sim-oauth-btn" id="sim-oauth-a" aria-label="使用 Google 登录">' + GOOGLE_ICON + '</button>' +
+            '<button type="button" class="sim-oauth-btn" id="sim-oauth-b" aria-label="使用 Twitch 登录">' + TWITCH_ICON + '</button>' +
           '</div>' +
           '<div class="sim-or"><span>或者</span></div>' +
           '<div class="sim-field">' +
@@ -47,7 +70,7 @@
           '</div>' +
           '<div class="sim-checks" id="sim-checks">' +
             '<label class="sim-check"><input type="checkbox" id="sim-check-news"><span class="sim-box"></span>' +
-              '<span class="sim-check-text">通过电子邮件接收有关本作的最新消息和更新。</span></label>' +
+              '<span class="sim-check-text">通过电子邮件接收有关《星际公民》和《第 42 中队》的最新消息和更新。</span></label>' +
             '<label class="sim-check"><input type="checkbox" id="sim-check-terms"><span class="sim-box"></span>' +
               '<span class="sim-check-text">我同意服务条款和隐私政策。</span></label>' +
           '</div>' +
@@ -75,17 +98,17 @@
           '</div>' +
           '<div class="sim-mail-card" id="sim-mail-card">' +
             '<div class="sim-mail-head">' +
-              '<span class="sim-mail-from">NS</span>' +
+              '<span class="sim-mail-from">RSI</span>' +
               '<div class="sim-mail-meta">' +
-                '<div class="sim-mail-subject" id="sim-mail-subject">Nova Star Interactive - Account activation</div>' +
-                '<div class="sim-mail-addr">no-reply@novastar.example · 刚刚</div>' +
+                '<div class="sim-mail-subject" id="sim-mail-subject">Roberts Space Industries - Account activation</div>' +
+                '<div class="sim-mail-addr">no-reply@robertsspaceindustries.com · 刚刚</div>' +
               '</div>' +
               '<span class="sim-mail-dot" aria-hidden="true"></span>' +
             '</div>' +
             '<div class="sim-mail-body">' +
               '<p>Hello!</p>' +
-              '<p>Welcome to Nova Star Interactive!</p>' +
-              '<p>To complete your account creation, please enter the following verification code on the NOVA STAR platform:</p>' +
+              '<p>Welcome to Roberts Space Industries!</p>' +
+              '<p>To complete your account creation, please enter the following verification code on the RSI platform:</p>' +
               '<p class="sim-mail-label">Your verification code:</p>' +
               '<div class="sim-mail-code" id="sim-mail-code">- - - - - -</div>' +
               '<p class="sim-mail-note">This code is valid for 10 minutes.</p>' +
@@ -118,7 +141,7 @@
     },
     steps: [
       { scene: 'register', label: '进入注册页',
-        hint: '账号注册页（模拟演示，非官方网站）', duration: 1400 },
+        hint: '这是账号注册页（模拟演示，不是官网）', duration: 1400 },
 
       { scene: 'register', label: '帐户名称', target: '#sim-username',
         hint: '① 帐户名称：注册后改名要花钱，想好再填',
