@@ -12,7 +12,6 @@
 (function () {
   'use strict';
 
-  var REDUCED = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   var MASK = '••••••••••';
 
   function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
@@ -30,7 +29,7 @@
     this.cfg = cfg;
     this.steps = cfg.steps;
     this.index = -1;
-    this.auto = !REDUCED;
+    this.auto = true;          // 始终自动播放（不因系统"减少动画效果"而不播）
     this.playing = false;
     this.userPaused = false;   // 用户手动按过暂停；此状态下划走再回来不自动续播
     this.hintsOn = true;
@@ -44,8 +43,27 @@
     this.bind();
     this.watch();
     this.goto(0, { autoplay: false });
-    if (REDUCED) this.window.classList.add('reduced');
+    // 兜底：某些环境（系统开启"减少动画效果"、容器测量异常、窗口很扁）下
+    // IntersectionObserver 可能不触发或比例不足，这里主动检查一次并开始播放
+    var self = this;
+    setTimeout(function () { self.kick(); }, 1200);
   }
+
+  // 元素确实在视口里却没开始播时，主动启动
+  SimPlayer.prototype.kick = function () {
+    if (this.playing || this.userPaused || !this.auto) return;
+    if (this.index >= this.steps.length - 1) return;
+    var r = this.window.getBoundingClientRect();
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    if (!r.height || r.bottom <= 0 || r.top >= vh) return;
+    var shown = (Math.min(r.bottom, vh) - Math.max(r.top, 0)) / r.height;
+    if (shown >= 0.08) {
+      this.visible = true;
+      this.playing = true;
+      this.scheduleNext();
+      this.updatePlayButton();
+    }
+  };
 
   SimPlayer.prototype.makeCode = function () {
     return String(Math.floor(100000 + Math.random() * 900000));
@@ -168,7 +186,7 @@
             self.updatePlayButton();
           }
         });
-      }, { threshold: 0.3 });
+      }, { threshold: 0.12 });
       this.io.observe(this.window);
     } else {
       this.visible = true;

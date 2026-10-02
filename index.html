@@ -749,6 +749,12 @@
             .sim-warn { font-size: 13px; padding: 8px 12px; }
             .sim-warn-link { margin-left: 0; }
         }
+
+        /* 系统开启"减少动画效果"时：动画照常播放，只把过渡动作减到最轻 */
+        @media (prefers-reduced-motion: reduce) {
+            .sim-scene, .sim-mail-card, .sim-hint, .sim-success { transition-duration: .1s !important; }
+            .sim-mail-dot { animation: none; }
+        }
     </style>
 </head>
 <body>
