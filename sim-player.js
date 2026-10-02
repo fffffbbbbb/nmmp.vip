@@ -32,6 +32,7 @@
     this.index = -1;
     this.auto = !REDUCED;
     this.playing = false;
+    this.userPaused = false;   // 用户手动按过暂停；此状态下划走再回来不自动续播
     this.hintsOn = true;
     this.arrowOn = false;
     this.timer = null;
@@ -154,12 +155,14 @@
           self.visible = entry.isIntersecting;
           if (self.visible) {
             self.reposition();
-            if (self.auto && !self.playing && self.index < self.steps.length - 1) {
+            // 可见就继续播（除非：关闭了自动、用户手动暂停、或已经播到结尾）
+            if (self.auto && !self.userPaused && self.index < self.steps.length - 1) {
               self.playing = true;
               self.scheduleNext();
               self.updatePlayButton();
             }
           } else {
+            // 划出可视区域 / 切换了别的区块 → 暂停，回来时从当前步接着播
             clearTimeout(self.timer);
             self.playing = false;
             self.updatePlayButton();
@@ -273,12 +276,14 @@
     clearTimeout(this.timer);
     var step = this.steps[this.index];
     if (!step || !step.duration) return;
+    if (!this.visible) return;   // 区块被隐藏时不推进，等重新可见后再继续
     this.timer = setTimeout(function () { self.next(); }, step.duration);
   };
 
   SimPlayer.prototype.jumpTo = function (i) {
     // 手动跳转视为想继续看演示
     this.auto = true;
+    this.userPaused = false;
     this.window.classList.remove('taken');
     this.goto(i, { autoplay: true });
   };
@@ -286,6 +291,8 @@
   SimPlayer.prototype.replay = function () {
     this.code = this.makeCode();
     this.auto = true;
+    this.userPaused = false;
+    this.playing = true;
     this.window.classList.remove('taken');
     this.goto(0, { autoplay: true });
   };
@@ -293,9 +300,11 @@
   SimPlayer.prototype.togglePlay = function () {
     if (this.playing) {
       this.playing = false;
+      this.userPaused = true;     // 用户主动暂停：划走再回来也不自动续播
       clearTimeout(this.timer);
     } else {
       this.auto = true;
+      this.userPaused = false;
       this.window.classList.remove('taken');
       this.playing = true;
       if (this.index >= this.steps.length - 1) { this.goto(0, { autoplay: true }); return; }
@@ -315,6 +324,7 @@
 
   SimPlayer.prototype.resumeAuto = function () {
     this.auto = true;
+    this.userPaused = false;
     this.playing = true;
     this.window.classList.remove('taken');
     this.scheduleNext();

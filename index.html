@@ -1595,6 +1595,7 @@
 
                 // --- SINGLE BRANCH DISPLAY ---
                 // Show only this node's OWN article, not its descendants
+                // （模拟演示由可见性驱动：划出可视区域自动暂停，切回来从当前步接着播）
                 document.querySelectorAll('.article-card').forEach(card => {
                     card.style.display = card.dataset.task === node.id ? '' : 'none';
                 });
