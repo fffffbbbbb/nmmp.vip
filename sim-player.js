@@ -81,14 +81,15 @@
     Object.keys(this.cfg.scenes).forEach(function (k) { scenes += self.cfg.scenes[k](); });
 
     var wmTiles = '';
-    for (var w = 0; w < 12; w++) wmTiles += '<span>非官方教学演示</span>';
+    for (var w = 0; w < 12; w++) wmTiles += '<span>非官方网站仅作教程使用</span>';
 
     this.window = make(
       '<div class="sim-window" tabindex="0">' +
         // 已按要求删除"浏览器伪装栏"（地址栏 + 红黄绿圆点），消除视觉钓鱼嫌疑
         '<div class="sim-warn">' +
           '<span class="sim-warn-ic">⚠</span>' +
-          '<span class="sim-warn-text">这是<b>教学模拟页面</b>，不是官网，<b>不会真的注册账号</b></span>' +
+          '<span class="sim-warn-text">这是<b>教学模拟页面</b>，不是官网，<b>不会真的注册账号</b>' +
+            '<em class="sim-warn-en">This is a simulated tutorial page, NOT the official website.</em></span>' +
           '<a class="sim-warn-link" href="https://robertsspaceindustries.com" target="_blank" rel="noopener">打开真正的官网 ↗</a>' +
         '</div>' +
         '<div class="sim-stage">' + scenes +
