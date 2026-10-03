@@ -577,15 +577,7 @@
         .sim-window:focus-visible { box-shadow: 0 0 0 2px rgba(63,169,245,0.45), 0 10px 40px rgba(0,0,0,0.45); }
         .sim-window p { margin: 0; }
 
-        .sim-titlebar { display: flex; align-items: center; gap: 12px; padding: 9px 14px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.06); }
-        .sim-dots { display: flex; gap: 6px; flex-shrink: 0; }
-        .sim-dots i { width: 10px; height: 10px; border-radius: 50%; display: block; background: #2c4a6b; }
-        .sim-dots i:nth-child(1) { background: #ff5f57; }
-        .sim-dots i:nth-child(2) { background: #febc2e; }
-        .sim-dots i:nth-child(3) { background: #28c840; }
-        .sim-url { flex: 1; text-align: center; font-family: var(--font-mono); font-size: 12px; color: var(--sim-dim2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .sim-badge { flex-shrink: 0; font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 20px;
-            color: #2a1a00; background: #f5b53d; border: 1px solid #ffcd66; }
+        /* 原「浏览器伪装栏」（地址栏 + 红黄绿圆点）已按 Fankit 合规要求整体删除 */
         .sim-warn { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 9px 14px;
             background: linear-gradient(90deg, #f0a91c, #ffd071); color: #2a1a00; font-size: 14px; font-weight: 600; }
         .sim-warn-ic { font-size: 17px; line-height: 1; }
@@ -745,7 +737,6 @@
             .sim-verify-grid { grid-template-columns: 1fr; gap: 18px; padding: 20px; }
             .sim-reg-wrap { padding: 22px 18px; }
             .sim-hint { max-width: 90%; font-size: 14px; padding: 11px 14px; }
-            .sim-url { display: none; }
             .sim-warn { font-size: 13px; padding: 8px 12px; }
             .sim-warn-link { margin-left: 0; }
         }
