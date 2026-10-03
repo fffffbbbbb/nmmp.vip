@@ -747,38 +747,38 @@
             .sim-scene, .sim-mail-card, .sim-hint, .sim-success { transition-duration: .1s !important; }
             .sim-mail-dot { animation: none; }
         }
-        /* ===== Fankit 合规：顶部中英双语非官方声明 + 底部商标声明 ===== */
-        #fankit-banner {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 10000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
-            padding: 6px 14px; text-align: center; font-size: 11.5px; line-height: 1.4; letter-spacing: .1px;
-            color: rgba(255,255,255,0.62); background: rgba(5,9,18,0.95);
-            border-bottom: 1px solid rgba(255,255,255,0.07); backdrop-filter: blur(10px);
+        /* ===== Fankit 合规：声明与官方标识统一放在页脚（顶部保持干净）===== */
+        .site-footer {
+            max-width: 900px; margin: 36px auto 44px; padding: 30px 28px 34px;
+            border: 1px solid var(--border-subtle); border-radius: 14px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012));
+            color: var(--text-muted); text-align: center;
         }
-        #fankit-banner .fn-cn { color: rgba(255,255,255,0.8); }
-        /* 高度由 JS 实测写入 --fankit-h，双语文案换行时也不会盖住下方内容 */
-        #top-bar { top: var(--fankit-h, 34px); }
-        #app-layout { top: calc(var(--fankit-h, 34px) + 60px); }
-        @media (max-width: 700px) { #fankit-banner { font-size: 10.5px; padding: 5px 10px; } }
-        .site-trademark {
-            margin: 26px 0 34px; padding: 16px; border-top: 1px solid var(--border-subtle);
-            color: var(--text-muted); font-size: 12px; line-height: 1.85; text-align: center;
+        /* ① 官方「Made by the Community」标识 */
+        .sf-badge { display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap;
+            padding-bottom: 26px; margin-bottom: 4px; border-bottom: 1px solid var(--border-subtle); }
+        .sf-badge img { display: block; width: 88px; height: 88px; flex-shrink: 0; }
+        .sf-badge-text { text-align: left; }
+        .sf-badge-text b { display: block; color: #fff; font-family: var(--font-display); font-size: 15px; letter-spacing: 3px; }
+        .sf-badge-text span { display: block; color: rgba(255,255,255,0.76); font-size: 13px; margin-top: 6px; }
+        .sf-badge-text em { display: block; color: rgba(255,255,255,0.45); font-size: 12px; font-style: normal; margin-top: 4px; }
+        /* ② 分区：免责声明 / 商标 / 官方入口 */
+        .sf-section { margin-top: 26px; }
+        .sf-label { display: block; font-size: 11.5px; letter-spacing: 2px; color: rgba(120,190,255,0.75); margin-bottom: 10px; }
+        /* 免责声明字号为页脚最大，满足官方"不得比其它声明更小"的要求 */
+        .sf-en { margin: 0 0 8px; font-size: 13px; line-height: 2; color: rgba(255,255,255,0.68); }
+        .sf-cn { margin: 0; font-size: 13px; line-height: 2; color: rgba(255,255,255,0.58); }
+        .sf-link a { color: rgba(120,190,255,0.9); text-decoration: underline; font-size: 13.5px; }
+        #site-notice { scroll-margin-top: 120px; }
+        @media (max-width: 760px) {
+            .site-footer { margin: 26px 10px 32px; padding: 22px 16px 26px; }
+            .sf-badge { gap: 14px; padding-bottom: 20px; }
+            .sf-badge img { width: 66px; height: 66px; }
+            .sf-badge-text { text-align: center; }
+            .sf-badge-text b { font-size: 13px; letter-spacing: 1.5px; }
+            .sf-section { margin-top: 20px; }
+            .sf-en, .sf-cn { line-height: 1.9; }
         }
-        .site-trademark .tm-cn { color: rgba(255,255,255,0.5); }
-        .site-trademark .tm-line { margin: 4px 0; }
-        .site-trademark a { color: rgba(120,190,255,0.85); text-decoration: underline; }
-
-        /* 「Made by the Community」官方标识（Fankit 要求，中英双语） */
-        .mtbc-badge { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap;
-            max-width: 700px; margin: 0 auto 18px; padding: 14px 20px;
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.045), rgba(255,255,255,0.015)); }
-        .mtbc-badge img { display: block; width: 70px; height: 70px; flex-shrink: 0; }
-        .mtbc-text { text-align: left; }
-        .mtbc-text b { display: block; color: #ffffff; font-family: var(--font-display); font-size: 14px; letter-spacing: 2.5px; }
-        .mtbc-text span { display: block; color: rgba(255,255,255,0.75); font-size: 13px; margin-top: 4px; }
-        .mtbc-text em { display: block; color: rgba(255,255,255,0.45); font-size: 11.5px; font-style: normal; margin-top: 3px; }
-        @media (max-width: 700px) { .mtbc-badge img { width: 56px; height: 56px; } .mtbc-text { text-align: center; } }
 
         /* 官方要求：徽章需出现在所有图像角落，不透明度不低于 50%，且尺寸可辨 */
         .article-image { position: relative; }
@@ -800,11 +800,6 @@
     </style>
 </head>
 <body>
-    <!-- Fankit 政策要求的非官方声明（页面最顶部，中英双语，常驻可见） -->
-    <div id="fankit-banner" role="note">
-        <span class="fn-en">This is an unofficial Star Citizen fan site, not affiliated with the Cloud Imperium group of companies. All content on this site not authored by its host or users are property of their respective owners.</span>
-        <span class="fn-cn">本网站为非官方《星际公民》粉丝网站，与 Cloud Imperium 集团旗下公司无任何关联；除站长与用户原创内容外，本站其余内容版权归各自所有者所有。</span>
-    </div>
     <h1 class="sr-only">星际公民中文教学站</h1>
     <!-- 背景层 -->
     <div id="scroll-hider"></div>
@@ -1795,23 +1790,38 @@
             window.createSimPlayer(item.host, cfg);
         });
 
-        // 页面最底部的声明区（Fankit 要求：Made by the Community 标识 + 商标声明 + 官网链接）
-        // 原先自拟的「玩家自制演示」声明已被官方标识取代（避免重复）
-        const trademark = document.createElement('div');
-        trademark.className = 'site-trademark';
-        trademark.innerHTML =
-            '<div class="mtbc-badge">' +
+        // 页面页脚：Fankit 合规声明区（官方标识 + 免责声明 + 商标声明 + 官网入口）
+        // 顶部不放任何声明条，避免干扰浏览；此处字号、间距按"清晰可读、不拥挤"规划
+        const siteFooter = document.createElement('footer');
+        siteFooter.className = 'site-footer';
+        siteFooter.innerHTML =
+            // ① 官方「Made by the Community」标识
+            '<div class="sf-badge">' +
                 '<img src="mtbc-badge.png" alt="Made by the Community">' +
-                '<div class="mtbc-text">' +
+                '<div class="sf-badge-text">' +
                     '<b>MADE BY THE COMMUNITY</b>' +
                     '<span>由社区制作 · 本网站为非官方《星际公民》粉丝网站</span>' +
                     '<em>This is an unofficial Star Citizen Fan Site.</em>' +
                 '</div>' +
             '</div>' +
-            '<p class="tm-line">Star Citizen&#174;, Roberts Space Industries&#174; and Cloud Imperium&#174; are registered trademarks of Cloud Imperium Rights LLC.</p>' +
-            '<p class="tm-line tm-cn">Star Citizen&#174;、Roberts Space Industries&#174; 与 Cloud Imperium&#174; 是 Cloud Imperium Rights LLC 的注册商标。</p>' +
-            '<p class="tm-line"><a href="https://robertsspaceindustries.com" target="_blank" rel="noopener">官方站点 / Official site: robertsspaceindustries.com &#8599;</a></p>';
-        mainContent.appendChild(trademark);
+            // ② 免责声明（官方要求原文，中英对照）
+            '<div class="sf-section">' +
+                '<span class="sf-label">免责声明 / Disclaimer</span>' +
+                '<p class="sf-en" id="site-notice">This is an unofficial Star Citizen fan site, not affiliated with the Cloud Imperium group of companies. All content on this site not authored by its host or users are property of their respective owners.</p>' +
+                '<p class="sf-cn">本网站为非官方《星际公民》粉丝网站，与 Cloud Imperium 集团旗下公司无任何关联；除站长与用户原创内容外，本站其余内容版权归各自所有者所有。</p>' +
+            '</div>' +
+            // ③ 商标声明
+            '<div class="sf-section">' +
+                '<span class="sf-label">商标声明 / Trademarks</span>' +
+                '<p class="sf-en">Star Citizen&#174;, Roberts Space Industries&#174; and Cloud Imperium&#174; are registered trademarks of Cloud Imperium Rights LLC.</p>' +
+                '<p class="sf-cn">Star Citizen&#174;、Roberts Space Industries&#174; 与 Cloud Imperium&#174; 是 Cloud Imperium Rights LLC 的注册商标。</p>' +
+            '</div>' +
+            // ④ 官方入口（政策要求：必须提供官网链接）
+            '<div class="sf-section sf-link">' +
+                '<span class="sf-label">官方入口 / Official Site</span>' +
+                '<a href="https://robertsspaceindustries.com" target="_blank" rel="noopener">robertsspaceindustries.com &#8599;</a>' +
+            '</div>';
+        mainContent.appendChild(siteFooter);
     }
 
     // =====================================================================
@@ -3213,15 +3223,6 @@
                 fp.addEventListener('mouseenter', () => showFt(fp, fp.getAttribute('data-tip')));
                 fp.addEventListener('mouseleave', () => { ft.style.display = 'none'; });
             }
-        }
-
-        // 顶部中英双语声明条：实测高度写进 --fankit-h，换行时也不会盖住下方内容
-        const fnBanner = document.getElementById('fankit-banner');
-        if (fnBanner) {
-            const syncBannerHeight = () => document.documentElement.style.setProperty('--fankit-h', fnBanner.offsetHeight + 'px');
-            syncBannerHeight();
-            window.addEventListener('resize', syncBannerHeight);
-            if (document.fonts && document.fonts.ready) document.fonts.ready.then(syncBannerHeight);
         }
 
         // Music toggle
