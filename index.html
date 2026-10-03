@@ -755,9 +755,48 @@
             .sim-scene, .sim-mail-card, .sim-hint, .sim-success { transition-duration: .1s !important; }
             .sim-mail-dot { animation: none; }
         }
+        /* ===== Fankit 合规：顶部非官方声明 + 底部商标声明 ===== */
+        #fankit-banner {
+            position: fixed; top: 0; left: 0; right: 0; height: 30px; z-index: 10000;
+            display: flex; align-items: center; justify-content: center; text-align: center;
+            padding: 0 14px; font-size: 11.5px; line-height: 1.3; letter-spacing: .1px;
+            color: rgba(255,255,255,0.66); background: rgba(5,9,18,0.95);
+            border-bottom: 1px solid rgba(255,255,255,0.07); backdrop-filter: blur(10px);
+        }
+        #top-bar { top: 30px; }
+        #app-layout { top: 90px; }
+        @media (max-width: 1080px) {
+            #fankit-banner { height: 44px; font-size: 11px; padding: 3px 14px; }
+            #top-bar { top: 44px; }
+            #app-layout { top: 104px; }
+        }
+        @media (max-width: 700px) {
+            #fankit-banner { height: 62px; font-size: 10.5px; padding: 3px 10px; }
+            #top-bar { top: 62px; }
+            #app-layout { top: 122px; }
+        }
+        .site-trademark {
+            margin: 26px 0 34px; padding: 16px; border-top: 1px solid var(--border-subtle);
+            color: var(--text-muted); font-size: 12px; line-height: 1.8; text-align: center;
+        }
+        .action-note { margin-top: 10px; color: var(--text-muted); font-size: 12.5px; line-height: 1.7; }
+
+        /* ===== 演示区水印（防截图裁剪后误认）===== */
+        .sim-watermark { position: absolute; inset: -15%; z-index: 7; pointer-events: none; opacity: .07;
+            display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr);
+            transform: rotate(-22deg); color: #ffffff; font-size: 19px; font-weight: 700; letter-spacing: 3px; }
+        .sim-watermark span { display: flex; align-items: center; justify-content: center; white-space: nowrap; }
+
+        /* ===== 表单彻底不可交互（阻断任何输入/数据收集）===== */
+        .sim-input:disabled { pointer-events: none; cursor: default; opacity: 1;
+            -webkit-text-fill-color: var(--sim-text); color: var(--sim-text); }
+        .sim-check { pointer-events: none; }
+        @media (max-width: 820px) { .sim-watermark { font-size: 15px; } }
     </style>
 </head>
 <body>
+    <!-- Fankit 政策要求的非官方声明（页面最顶部，常驻可见） -->
+    <div id="fankit-banner" role="note">This is an unofficial Star Citizen fan site, not affiliated with the Cloud Imperium group of companies. All content on this site not authored by its host or users are property of their respective owners.</div>
     <h1 class="sr-only">星际公民中文教学站</h1>
     <!-- 背景层 -->
     <div id="scroll-hider"></div>
@@ -932,8 +971,8 @@
     <!-- 教学模拟播放器（场景模板 + 时间轴 / 播放引擎）
          注意：这两个文件的浏览器缓存是 4 小时，改完它们后请把下面的 ?v=N 数字 +1，
          否则访客会在最长 4 小时内继续用到旧版。 -->
-    <script defer src="sims.js?v=2"></script>
-    <script defer src="sim-player.js?v=2"></script>
+    <script defer src="sims.js?v=3"></script>
+    <script defer src="sim-player.js?v=3"></script>
 
     <script>
     // =====================================================================
@@ -1263,7 +1302,8 @@
             slides: [
                 { type: 'sim', sim: 'register' }
             ],
-            action: { text: '立即注册(跳转已自动填写邀请码的官网注册页面)', url: 'https://robertsspaceindustries.com/en/enlist?referral=STAR-9KWF-Y7CS' },
+            action: { text: '前往官方注册（已填入推荐码）', url: 'https://robertsspaceindustries.com/en/enlist?referral=STAR-9KWF-Y7CS' },
+            actionNote: '本链接仅为分享官方入口，你可以自行决定是否使用该推荐码。注册后可获得官方新人奖励。',
             warnings: ['慎重选择163邮箱注册，易被撞库洗号', '初始邮箱权重大，勿用非本人邮箱注册']
         },
         '购买资格包': {
@@ -1716,6 +1756,14 @@
                 a.textContent = data.action.text;
                 body.appendChild(a);
             }
+
+            // 跳转按钮下方的说明（把选择权交给用户）
+            if (data.actionNote) {
+                const note = document.createElement('div');
+                note.className = 'action-note';
+                note.textContent = data.actionNote;
+                body.appendChild(note);
+            }
             
             // Warnings
             if (data.warnings) {
@@ -1738,6 +1786,12 @@
             if (!cfg || typeof window.createSimPlayer !== 'function') return;
             window.createSimPlayer(item.host, cfg);
         });
+
+        // 页面最底部的商标声明（Fankit 政策要求）
+        const trademark = document.createElement('div');
+        trademark.className = 'site-trademark';
+        trademark.innerHTML = 'Star Citizen&#174;, Roberts Space Industries&#174; and Cloud Imperium&#174; are registered trademarks of Cloud Imperium Rights LLC.<br>本页面为玩家自制教学演示，仅供学习参考。';
+        mainContent.appendChild(trademark);
     }
 
     // =====================================================================

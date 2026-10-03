@@ -80,19 +80,19 @@
     var scenes = '';
     Object.keys(this.cfg.scenes).forEach(function (k) { scenes += self.cfg.scenes[k](); });
 
+    var wmTiles = '';
+    for (var w = 0; w < 12; w++) wmTiles += '<span>非官方教学演示</span>';
+
     this.window = make(
       '<div class="sim-window" tabindex="0">' +
-        '<div class="sim-titlebar">' +
-          '<span class="sim-dots" aria-hidden="true"><i></i><i></i><i></i></span>' +
-          '<span class="sim-url">robertsspaceindustries.com/en/enlist</span>' +
-          '<span class="sim-badge">⚠ 非官方网站</span>' +
-        '</div>' +
+        // 已按要求删除"浏览器伪装栏"（地址栏 + 红黄绿圆点），消除视觉钓鱼嫌疑
         '<div class="sim-warn">' +
           '<span class="sim-warn-ic">⚠</span>' +
           '<span class="sim-warn-text">这是<b>教学模拟页面</b>，不是官网，<b>不会真的注册账号</b></span>' +
-          '<a class="sim-warn-link" href="https://robertsspaceindustries.com/en/enlist?referral=STAR-9KWF-Y7CS" target="_blank" rel="noopener">打开真正的官网 ↗</a>' +
+          '<a class="sim-warn-link" href="https://robertsspaceindustries.com" target="_blank" rel="noopener">打开真正的官网 ↗</a>' +
         '</div>' +
         '<div class="sim-stage">' + scenes +
+          '<div class="sim-watermark" aria-hidden="true">' + wmTiles + '</div>' +
           '<div class="sim-hint-layer">' +
             '<div class="sim-hint" id="sim-hint">' +
               '<span class="sim-hint-badge">1</span>' +

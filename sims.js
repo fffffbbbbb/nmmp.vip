@@ -55,23 +55,23 @@
           '</div>' +
           '<div class="sim-or"><span>或者</span></div>' +
           '<div class="sim-field">' +
-            '<input class="sim-input" id="sim-username" type="text" placeholder="帐户名称" autocomplete="off" spellcheck="false">' +
+            '<input class="sim-input" id="sim-username" type="text" placeholder="帐户名称" autocomplete="off" spellcheck="false" disabled>' +
             '<div class="sim-help">您唯一的公开昵称和显示名称。</div>' +
           '</div>' +
           '<div class="sim-field">' +
-            '<input class="sim-input" id="sim-email" type="text" placeholder="电子邮件" autocomplete="off" spellcheck="false">' +
+            '<input class="sim-input" id="sim-email" type="text" placeholder="电子邮件" autocomplete="off" spellcheck="false" disabled>' +
           '</div>' +
           '<div class="sim-field">' +
-            '<input class="sim-input" id="sim-password" type="text" placeholder="密码" autocomplete="off" spellcheck="false">' +
+            '<input class="sim-input" id="sim-password" type="text" placeholder="密码" autocomplete="off" spellcheck="false" disabled>' +
           '</div>' +
           '<div class="sim-field">' +
-            '<input class="sim-input" id="sim-birthday" type="text" placeholder="出生日期" autocomplete="off" spellcheck="false">' +
+            '<input class="sim-input" id="sim-birthday" type="text" placeholder="出生日期" autocomplete="off" spellcheck="false" disabled>' +
             '<div class="sim-help">您必须年满 <b class="sim-red">13</b> 岁才能入伍。</div>' +
           '</div>' +
           '<div class="sim-checks" id="sim-checks">' +
-            '<label class="sim-check"><input type="checkbox" id="sim-check-news"><span class="sim-box"></span>' +
+            '<label class="sim-check"><input type="checkbox" id="sim-check-news" disabled><span class="sim-box"></span>' +
               '<span class="sim-check-text">通过电子邮件接收有关《星际公民》和《第 42 中队》的最新消息和更新。</span></label>' +
-            '<label class="sim-check"><input type="checkbox" id="sim-check-terms"><span class="sim-box"></span>' +
+            '<label class="sim-check"><input type="checkbox" id="sim-check-terms" disabled><span class="sim-box"></span>' +
               '<span class="sim-check-text">我同意服务条款和隐私政策。</span></label>' +
           '</div>' +
           '<div class="sim-actions">' +
@@ -88,8 +88,8 @@
         '<div class="sim-verify-grid">' +
           '<div class="sim-verify-panel" id="sim-verify-panel">' +
             '<h3 class="sim-h2">验证您的电子邮件</h3>' +
-            '<p class="sim-sent">代码已发送至 <b id="sim-sent-to">your.name@example.com</b></p>' +
-            '<input class="sim-input sim-code-input" id="sim-code-input" type="text" placeholder="输入您的验证码" autocomplete="off" spellcheck="false">' +
+            '<p class="sim-sent">代码已发送至 <b id="sim-sent-to">你的常用邮箱</b></p>' +
+            '<input class="sim-input sim-code-input" id="sim-code-input" type="text" placeholder="输入您的验证码" autocomplete="off" spellcheck="false" disabled>' +
             '<button type="button" class="sim-btn-blue" id="sim-verify-btn">验证电子邮件</button>' +
             '<div class="sim-foot">' +
               '<p>还没有收到我们的电子邮件？</p>' +
@@ -145,11 +145,11 @@
 
       { scene: 'register', label: '帐户名称', target: '#sim-username',
         hint: '① 帐户名称：注册后改名要花钱，想好再填',
-        duration: 2000, action: { type: 'type', target: '#sim-username', text: 'NovaPilot' } },
+        duration: 2000, action: { type: 'type', target: '#sim-username', text: '你的游戏昵称' } },
 
       { scene: 'register', label: '电子邮件', target: '#sim-email',
         hint: '② 电子邮件：推荐 Gmail / Outlook，别用 163，必须是本人邮箱',
-        duration: 2800, action: { type: 'type', target: '#sim-email', text: 'your.name@gmail.com' } },
+        duration: 2800, action: { type: 'type', target: '#sim-email', text: '你的常用邮箱（切勿用163）' } },
 
       { scene: 'register', label: '密码', target: '#sim-password',
         hint: '③ 密码：字母＋数字＋符号',
