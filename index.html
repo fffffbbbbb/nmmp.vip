@@ -765,6 +765,25 @@
             color: var(--text-muted); font-size: 12px; line-height: 1.85; text-align: center;
         }
         .site-trademark .tm-cn { color: rgba(255,255,255,0.5); }
+        .site-trademark .tm-line { margin: 4px 0; }
+        .site-trademark a { color: rgba(120,190,255,0.85); text-decoration: underline; }
+
+        /* 「Made by the Community」官方标识（Fankit 要求，中英双语） */
+        .mtbc-badge { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap;
+            max-width: 700px; margin: 0 auto 18px; padding: 14px 20px;
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.045), rgba(255,255,255,0.015)); }
+        .mtbc-badge img { display: block; width: 70px; height: 70px; flex-shrink: 0; }
+        .mtbc-text { text-align: left; }
+        .mtbc-text b { display: block; color: #ffffff; font-family: var(--font-display); font-size: 14px; letter-spacing: 2.5px; }
+        .mtbc-text span { display: block; color: rgba(255,255,255,0.75); font-size: 13px; margin-top: 4px; }
+        .mtbc-text em { display: block; color: rgba(255,255,255,0.45); font-size: 11.5px; font-style: normal; margin-top: 3px; }
+        @media (max-width: 700px) { .mtbc-badge img { width: 56px; height: 56px; } .mtbc-text { text-align: center; } }
+
+        /* 官方要求：徽章需出现在所有图像角落，不透明度不低于 50%，且尺寸可辨 */
+        .article-image { position: relative; }
+        .article-image::after { content: ''; position: absolute; right: 8px; bottom: 8px; width: 42px; height: 42px;
+            background: url(mtbc-badge.png) center/contain no-repeat; opacity: .55; pointer-events: none; }
         .action-note { margin-top: 10px; color: var(--text-muted); font-size: 12.5px; line-height: 1.7; }
 
         /* ===== 演示区水印（防截图裁剪后误认）===== */
@@ -1776,14 +1795,22 @@
             window.createSimPlayer(item.host, cfg);
         });
 
-        // 页面最底部的商标声明（Fankit 政策要求，中英双语）
+        // 页面最底部的声明区（Fankit 要求：Made by the Community 标识 + 商标声明 + 官网链接）
+        // 原先自拟的「玩家自制演示」声明已被官方标识取代（避免重复）
         const trademark = document.createElement('div');
         trademark.className = 'site-trademark';
         trademark.innerHTML =
-            'Star Citizen&#174;, Roberts Space Industries&#174; and Cloud Imperium&#174; are registered trademarks of Cloud Imperium Rights LLC.<br>' +
-            '<span class="tm-cn">Star Citizen&#174;、Roberts Space Industries&#174; 与 Cloud Imperium&#174; 是 Cloud Imperium Rights LLC 的注册商标。</span><br>' +
-            'This page is a player-made tutorial demo, for learning reference only.<br>' +
-            '<span class="tm-cn">本页面为玩家自制教学演示，仅供学习参考。本站为非官方粉丝网站，与 Cloud Imperium 集团旗下公司无任何关联。</span>';
+            '<div class="mtbc-badge">' +
+                '<img src="mtbc-badge.png" alt="Made by the Community">' +
+                '<div class="mtbc-text">' +
+                    '<b>MADE BY THE COMMUNITY</b>' +
+                    '<span>由社区制作 · 本网站为非官方《星际公民》粉丝网站</span>' +
+                    '<em>This is an unofficial Star Citizen Fan Site.</em>' +
+                '</div>' +
+            '</div>' +
+            '<p class="tm-line">Star Citizen&#174;, Roberts Space Industries&#174; and Cloud Imperium&#174; are registered trademarks of Cloud Imperium Rights LLC.</p>' +
+            '<p class="tm-line tm-cn">Star Citizen&#174;、Roberts Space Industries&#174; 与 Cloud Imperium&#174; 是 Cloud Imperium Rights LLC 的注册商标。</p>' +
+            '<p class="tm-line"><a href="https://robertsspaceindustries.com" target="_blank" rel="noopener">官方站点 / Official site: robertsspaceindustries.com &#8599;</a></p>';
         mainContent.appendChild(trademark);
     }
 
